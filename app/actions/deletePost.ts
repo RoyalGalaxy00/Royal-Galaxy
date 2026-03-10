@@ -42,8 +42,13 @@ export async function deletePost(request: NextRequest) {
         );
     } catch (error) {
         console.error("Delete error:", error);
+
+        const errorMessage = error instanceof Error
+            ? `Server error: ${error.message}`
+            : "An unexpected error occurred";
+
         return NextResponse.json(
-            { success: false, message: `Server error: ${error.message}` },
+            { success: false, message: errorMessage },
             { status: 500 }
         );
     }

@@ -133,6 +133,7 @@ export default function NavBar() {
               <Button
                 variant="ghost"
                 size="icon"
+                suppressHydrationWarning
                 className={cn("hover:bg-black/10", textColorClass)}
               >
                 <Menu className="h-6 w-6" />

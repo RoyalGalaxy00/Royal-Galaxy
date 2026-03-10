@@ -65,12 +65,12 @@ const exo2 = Exo_2({
 // ── Palette ───────────────────────────────────────────────────────────────
 const C = {
   bg: "#f2ede1",
-  hero: "#272727",           // ← matches Contact page
+  hero: "#272727", // ← matches Contact page
   navy: "#1a2e2e",
   navyMid: "#223a3a",
   teal: "#0a7a7b",
   tealLight: "#0d9192",
-  gold: "#b8943f",           // ← gold accent like Contact page
+  gold: "#b8943f", // ← gold accent like Contact page
   goldLight: "#d4a853",
   cream: "rgb(221,211,188)",
   border: "#ddd5c4",
@@ -100,8 +100,18 @@ const ROOM_OPTIONS = [
 ];
 
 const MONTH_OPTIONS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 const TRAVEL_OPTIONS = [
@@ -125,7 +135,10 @@ const feedbackSchema = z.object({
   roomStayed: z.string().min(1, "Please select the room you stayed in"),
   checkInMonth: z.string().min(1, "Please select the month of your stay"),
   travelType: z.string().min(1, "Please select your travel type"),
-  ratingOverall: z.number().min(1, "Please rate your overall experience").max(5),
+  ratingOverall: z
+    .number()
+    .min(1, "Please rate your overall experience")
+    .max(5),
   ratingCleanliness: z.number().min(1, "Please rate cleanliness").max(5),
   ratingService: z.number().min(1, "Please rate the service").max(5),
   ratingFood: z.number().min(1, "Please rate the food").max(5),
@@ -295,7 +308,14 @@ function FeedbackCard({
             )}
             <div>
               <div className="flex items-center gap-1.5">
-                <p style={{ ...EXO, fontWeight: 600, fontSize: 14, color: C.navy }}>
+                <p
+                  style={{
+                    ...EXO,
+                    fontWeight: 600,
+                    fontSize: 14,
+                    color: C.navy,
+                  }}
+                >
                   {entry.Sender_name}
                 </p>
                 <BadgeCheck size={13} style={{ color: C.teal }} />
@@ -317,12 +337,16 @@ function FeedbackCard({
             {entry.wouldRecommend ? (
               <>
                 <ThumbsUp size={10} color="#16a34a" />
-                <span style={{ ...EYEBROW, color: "#16a34a", fontSize: 8 }}>Recommends</span>
+                <span style={{ ...EYEBROW, color: "#16a34a", fontSize: 8 }}>
+                  Recommends
+                </span>
               </>
             ) : (
               <>
                 <ThumbsDown size={10} color="#ef4444" />
-                <span style={{ ...EYEBROW, color: "#ef4444", fontSize: 8 }}>Doesn't recommend</span>
+                <span style={{ ...EYEBROW, color: "#ef4444", fontSize: 8 }}>
+                  Doesn't recommend
+                </span>
               </>
             )}
           </div>
@@ -371,14 +395,19 @@ function FeedbackCard({
             { label: "Location", val: entry.ratingLocation },
           ].map(({ label, val }) => (
             <div key={label} className="flex items-center justify-between">
-              <span style={{ ...EXO, fontSize: 11, color: C.muted }}>{label}</span>
+              <span style={{ ...EXO, fontSize: 11, color: C.muted }}>
+                {label}
+              </span>
               <RatingStars value={val} size={10} />
             </div>
           ))}
         </div>
 
         {/* Date + delete */}
-        <div className="flex items-center justify-between mt-auto pt-2 border-t" style={{ borderColor: C.border }}>
+        <div
+          className="flex items-center justify-between mt-auto pt-2 border-t"
+          style={{ borderColor: C.border }}
+        >
           <span style={{ ...EYEBROW, color: C.muted, fontSize: 9 }}>
             {new Date(entry.created_at).toLocaleDateString("en-US", {
               year: "numeric",
@@ -417,14 +446,26 @@ function FeedbackCard({
                   Delete
                 </button>
               </AlertDialogTrigger>
-              <AlertDialogContent style={{ background: C.cardBg, borderColor: C.border, borderRadius: 0 }}>
+              <AlertDialogContent
+                style={{
+                  background: C.cardBg,
+                  borderColor: C.border,
+                  borderRadius: 0,
+                }}
+              >
                 <AlertDialogHeader>
-                  <AlertDialogTitle style={{ ...EXO, color: C.navy, fontWeight: 700 }}>
+                  <AlertDialogTitle
+                    style={{ ...EXO, color: C.navy, fontWeight: 700 }}
+                  >
                     Delete this feedback?
                   </AlertDialogTitle>
-                  <AlertDialogDescription style={{ ...EXO, color: C.muted, fontSize: 14 }}>
+                  <AlertDialogDescription
+                    style={{ ...EXO, color: C.muted, fontSize: 14 }}
+                  >
                     The review from{" "}
-                    <span style={{ color: C.navy, fontWeight: 600 }}>{entry.Sender_name}</span>{" "}
+                    <span style={{ color: C.navy, fontWeight: 600 }}>
+                      {entry.Sender_name}
+                    </span>{" "}
                     will be permanently removed.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
@@ -442,7 +483,13 @@ function FeedbackCard({
                   </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={() => onDelete(entry._id)}
-                    style={{ ...EXO, background: "#ef4444", color: "#fff", borderRadius: 0, fontWeight: 600 }}
+                    style={{
+                      ...EXO,
+                      background: "#ef4444",
+                      color: "#fff",
+                      borderRadius: 0,
+                      fontWeight: 600,
+                    }}
                     className="hover:bg-red-600"
                   >
                     Yes, delete
@@ -467,7 +514,10 @@ export default function FeedbackPage() {
   const [formOpen, setFormOpen] = useState(false);
 
   const userRole = (user?.publicMetadata?.role as string) ?? "";
-  const canDelete = isSignedIn && (userRole === "admin" || userRole === "moderator");
+  const canDelete = !!(
+    isSignedIn &&
+    (userRole === "admin" || userRole === "moderator")
+  );
 
   useEffect(() => {
     (async () => {
@@ -550,14 +600,17 @@ export default function FeedbackPage() {
   const totalReviews = feedbacks.length;
   const avgOverall = avg(feedbacks, "ratingOverall");
   const pctRecommend = totalReviews
-    ? Math.round((feedbacks.filter((f) => f.wouldRecommend).length / totalReviews) * 100)
+    ? Math.round(
+        (feedbacks.filter((f) => f.wouldRecommend).length / totalReviews) * 100,
+      )
     : 0;
 
   return (
     <>
       <AOSInit />
-      <main className={`${exo2.variable} bg-[#f2ede1] min-h-screen flex flex-col`}>
-
+      <main
+        className={`${exo2.variable} bg-[#f2ede1] min-h-screen flex flex-col`}
+      >
         {/* ── TOP GOLD LINE (matches Contact page) ────────────────────── */}
         <div
           style={{
@@ -622,7 +675,13 @@ export default function FeedbackPage() {
               }}
             >
               Guest{" "}
-              <em style={{ fontStyle: "italic", color: C.goldLight, fontWeight: 300 }}>
+              <em
+                style={{
+                  fontStyle: "italic",
+                  color: C.goldLight,
+                  fontWeight: 300,
+                }}
+              >
                 Reviews
               </em>
             </h1>
@@ -677,7 +736,14 @@ export default function FeedbackPage() {
                     >
                       {value}
                     </span>
-                    <span style={{ ...EYEBROW, color: `${C.gold}99`, fontSize: 9, marginTop: 4 }}>
+                    <span
+                      style={{
+                        ...EYEBROW,
+                        color: `${C.gold}99`,
+                        fontSize: 9,
+                        marginTop: 4,
+                      }}
+                    >
                       {label}
                     </span>
                   </div>
@@ -699,7 +765,10 @@ export default function FeedbackPage() {
             }}
             preserveAspectRatio="none"
           >
-            <path d="M0,56 C480,0 960,0 1440,56 L1440,56 L0,56 Z" fill="#f2ede1" />
+            <path
+              d="M0,56 C480,0 960,0 1440,56 L1440,56 L0,56 Z"
+              fill="#f2ede1"
+            />
           </svg>
         </section>
 
@@ -766,18 +835,36 @@ export default function FeedbackPage() {
                 style={{ background: C.cardBg, borderColor: C.border }}
               >
                 {!isSignedIn ? (
-                  <p style={{ ...EXO, fontSize: 14, color: C.muted, textAlign: "center", padding: "24px 0" }}>
+                  <p
+                    style={{
+                      ...EXO,
+                      fontSize: 14,
+                      color: C.muted,
+                      textAlign: "center",
+                      padding: "24px 0",
+                    }}
+                  >
                     Please sign in to leave a review.
                   </p>
                 ) : submitted ? (
                   <div className="flex flex-col items-center text-center py-8 gap-3">
                     <div
                       className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ background: `${C.teal}15`, border: `1px solid ${C.teal}35` }}
+                      style={{
+                        background: `${C.teal}15`,
+                        border: `1px solid ${C.teal}35`,
+                      }}
                     >
                       <Send size={20} style={{ color: C.teal }} />
                     </div>
-                    <p style={{ ...EXO, fontWeight: 600, fontSize: 18, color: C.navy }}>
+                    <p
+                      style={{
+                        ...EXO,
+                        fontWeight: 600,
+                        fontSize: 18,
+                        color: C.navy,
+                      }}
+                    >
                       Thank you for your feedback!
                     </p>
                     <p style={{ ...EXO, fontSize: 13, color: C.muted }}>
@@ -801,27 +888,48 @@ export default function FeedbackPage() {
                   </div>
                 ) : (
                   <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-7" noValidate>
-
+                    <form
+                      onSubmit={form.handleSubmit(onSubmit)}
+                      className="space-y-7"
+                      noValidate
+                    >
                       {/* Auto-filled user info banner */}
                       <div
                         className="flex items-center gap-3 px-4 py-3"
-                        style={{ background: `${C.teal}0d`, border: `1px solid ${C.teal}25` }}
+                        style={{
+                          background: `${C.teal}0d`,
+                          border: `1px solid ${C.teal}25`,
+                        }}
                       >
                         {user?.imageUrl && (
                           <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                            <Image src={user.imageUrl} alt={user.fullName ?? ""} fill className="object-cover" />
+                            <Image
+                              src={user.imageUrl}
+                              alt={user.fullName ?? ""}
+                              fill
+                              className="object-cover"
+                            />
                           </div>
                         )}
                         <div>
-                          <p style={{ ...EXO, fontSize: 13, fontWeight: 600, color: C.navy }}>
+                          <p
+                            style={{
+                              ...EXO,
+                              fontSize: 13,
+                              fontWeight: 600,
+                              color: C.navy,
+                            }}
+                          >
                             {user?.fullName}
                           </p>
                           <p style={{ ...EXO, fontSize: 11, color: C.muted }}>
                             {user?.primaryEmailAddress?.emailAddress}
                           </p>
                         </div>
-                        <BadgeCheck size={14} style={{ color: C.teal, marginLeft: "auto" }} />
+                        <BadgeCheck
+                          size={14}
+                          style={{ color: C.teal, marginLeft: "auto" }}
+                        />
                       </div>
 
                       {/* Stay info row */}
@@ -831,14 +939,21 @@ export default function FeedbackPage() {
                           name="roomStayed"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel style={{ ...EYEBROW, color: C.muted }}>Room Stayed In</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormLabel style={{ ...EYEBROW, color: C.muted }}>
+                                Room Stayed In
+                              </FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
                                 <FormControl>
                                   <SelectTrigger
                                     style={{
                                       ...EXO,
                                       background: "transparent",
-                                      borderColor: errors.roomStayed ? "#ef4444" : C.border,
+                                      borderColor: errors.roomStayed
+                                        ? "#ef4444"
+                                        : C.border,
                                       borderRadius: 0,
                                       color: C.navy,
                                       fontSize: 14,
@@ -848,9 +963,23 @@ export default function FeedbackPage() {
                                     <SelectValue placeholder="Select room" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent style={{ background: C.cardBg, borderColor: C.border, borderRadius: 0 }}>
+                                <SelectContent
+                                  style={{
+                                    background: C.cardBg,
+                                    borderColor: C.border,
+                                    borderRadius: 0,
+                                  }}
+                                >
                                   {ROOM_OPTIONS.map((r) => (
-                                    <SelectItem key={r} value={r} style={{ ...EXO, color: C.navy, fontSize: 13 }}>
+                                    <SelectItem
+                                      key={r}
+                                      value={r}
+                                      style={{
+                                        ...EXO,
+                                        color: C.navy,
+                                        fontSize: 13,
+                                      }}
+                                    >
                                       {r}
                                     </SelectItem>
                                   ))}
@@ -866,14 +995,21 @@ export default function FeedbackPage() {
                           name="checkInMonth"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel style={{ ...EYEBROW, color: C.muted }}>Month of Stay</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormLabel style={{ ...EYEBROW, color: C.muted }}>
+                                Month of Stay
+                              </FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
                                 <FormControl>
                                   <SelectTrigger
                                     style={{
                                       ...EXO,
                                       background: "transparent",
-                                      borderColor: errors.checkInMonth ? "#ef4444" : C.border,
+                                      borderColor: errors.checkInMonth
+                                        ? "#ef4444"
+                                        : C.border,
                                       borderRadius: 0,
                                       color: C.navy,
                                       fontSize: 14,
@@ -883,9 +1019,23 @@ export default function FeedbackPage() {
                                     <SelectValue placeholder="Select month" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent style={{ background: C.cardBg, borderColor: C.border, borderRadius: 0 }}>
+                                <SelectContent
+                                  style={{
+                                    background: C.cardBg,
+                                    borderColor: C.border,
+                                    borderRadius: 0,
+                                  }}
+                                >
                                   {MONTH_OPTIONS.map((m) => (
-                                    <SelectItem key={m} value={m} style={{ ...EXO, color: C.navy, fontSize: 13 }}>
+                                    <SelectItem
+                                      key={m}
+                                      value={m}
+                                      style={{
+                                        ...EXO,
+                                        color: C.navy,
+                                        fontSize: 13,
+                                      }}
+                                    >
                                       {m}
                                     </SelectItem>
                                   ))}
@@ -901,14 +1051,21 @@ export default function FeedbackPage() {
                           name="travelType"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel style={{ ...EYEBROW, color: C.muted }}>Travel Type</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormLabel style={{ ...EYEBROW, color: C.muted }}>
+                                Travel Type
+                              </FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
                                 <FormControl>
                                   <SelectTrigger
                                     style={{
                                       ...EXO,
                                       background: "transparent",
-                                      borderColor: errors.travelType ? "#ef4444" : C.border,
+                                      borderColor: errors.travelType
+                                        ? "#ef4444"
+                                        : C.border,
                                       borderRadius: 0,
                                       color: C.navy,
                                       fontSize: 14,
@@ -918,9 +1075,23 @@ export default function FeedbackPage() {
                                     <SelectValue placeholder="Select type" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent style={{ background: C.cardBg, borderColor: C.border, borderRadius: 0 }}>
+                                <SelectContent
+                                  style={{
+                                    background: C.cardBg,
+                                    borderColor: C.border,
+                                    borderRadius: 0,
+                                  }}
+                                >
                                   {TRAVEL_OPTIONS.map((t) => (
-                                    <SelectItem key={t} value={t} style={{ ...EXO, color: C.navy, fontSize: 13 }}>
+                                    <SelectItem
+                                      key={t}
+                                      value={t}
+                                      style={{
+                                        ...EXO,
+                                        color: C.navy,
+                                        fontSize: 13,
+                                      }}
+                                    >
                                       {t}
                                     </SelectItem>
                                   ))}
@@ -934,15 +1105,41 @@ export default function FeedbackPage() {
 
                       {/* Ratings grid */}
                       <div>
-                        <p style={{ ...EYEBROW, color: C.teal, marginBottom: 16 }}>Rate Your Stay</p>
+                        <p
+                          style={{
+                            ...EYEBROW,
+                            color: C.teal,
+                            marginBottom: 16,
+                          }}
+                        >
+                          Rate Your Stay
+                        </p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                           {[
-                            { name: "ratingOverall" as const, label: "Overall Experience" },
-                            { name: "ratingCleanliness" as const, label: "Cleanliness" },
-                            { name: "ratingService" as const, label: "Staff & Service" },
-                            { name: "ratingFood" as const, label: "Food & Dining" },
-                            { name: "ratingValue" as const, label: "Value for Money" },
-                            { name: "ratingLocation" as const, label: "Location & Views" },
+                            {
+                              name: "ratingOverall" as const,
+                              label: "Overall Experience",
+                            },
+                            {
+                              name: "ratingCleanliness" as const,
+                              label: "Cleanliness",
+                            },
+                            {
+                              name: "ratingService" as const,
+                              label: "Staff & Service",
+                            },
+                            {
+                              name: "ratingFood" as const,
+                              label: "Food & Dining",
+                            },
+                            {
+                              name: "ratingValue" as const,
+                              label: "Value for Money",
+                            },
+                            {
+                              name: "ratingLocation" as const,
+                              label: "Location & Views",
+                            },
                           ].map(({ name, label }) => (
                             <FormField
                               key={name}
@@ -950,7 +1147,11 @@ export default function FeedbackPage() {
                               name={name}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel style={{ ...EYEBROW, color: C.muted }}>{label}</FormLabel>
+                                  <FormLabel
+                                    style={{ ...EYEBROW, color: C.muted }}
+                                  >
+                                    {label}
+                                  </FormLabel>
                                   <FormControl>
                                     <StarPicker
                                       value={field.value as number}
@@ -958,7 +1159,9 @@ export default function FeedbackPage() {
                                       error={!!errors[name]}
                                     />
                                   </FormControl>
-                                  <FormMessage style={{ ...EXO, fontSize: 12 }} />
+                                  <FormMessage
+                                    style={{ ...EXO, fontSize: 12 }}
+                                  />
                                 </FormItem>
                               )}
                             />
@@ -972,13 +1175,17 @@ export default function FeedbackPage() {
                         name="title"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel style={{ ...EYEBROW, color: C.muted }}>Review Title</FormLabel>
+                            <FormLabel style={{ ...EYEBROW, color: C.muted }}>
+                              Review Title
+                            </FormLabel>
                             <FormControl>
                               <Input
                                 placeholder="Summarise your stay in a few words…"
                                 style={{
                                   ...inputStyle,
-                                  borderColor: errors.title ? "#ef4444" : C.border,
+                                  borderColor: errors.title
+                                    ? "#ef4444"
+                                    : C.border,
                                 }}
                                 className="focus-visible:ring-0 focus-visible:border-[#0a7a7b]"
                                 {...field}
@@ -995,14 +1202,18 @@ export default function FeedbackPage() {
                         name="body"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel style={{ ...EYEBROW, color: C.muted }}>Your Review</FormLabel>
+                            <FormLabel style={{ ...EYEBROW, color: C.muted }}>
+                              Your Review
+                            </FormLabel>
                             <FormControl>
                               <Textarea
                                 placeholder="Tell others about your experience — what you loved, what could be improved…"
                                 rows={5}
                                 style={{
                                   ...inputStyle,
-                                  borderColor: errors.body ? "#ef4444" : C.border,
+                                  borderColor: errors.body
+                                    ? "#ef4444"
+                                    : C.border,
                                   lineHeight: 1.7,
                                   resize: "vertical",
                                 }}
@@ -1027,8 +1238,16 @@ export default function FeedbackPage() {
                             <FormControl>
                               <div className="flex gap-3 pt-1">
                                 {[
-                                  { val: true, label: "Yes, I'd recommend", icon: <ThumbsUp size={13} /> },
-                                  { val: false, label: "Not this time", icon: <ThumbsDown size={13} /> },
+                                  {
+                                    val: true,
+                                    label: "Yes, I'd recommend",
+                                    icon: <ThumbsUp size={13} />,
+                                  },
+                                  {
+                                    val: false,
+                                    label: "Not this time",
+                                    icon: <ThumbsDown size={13} />,
+                                  },
                                 ].map(({ val, label, icon }) => {
                                   const active = field.value === val;
                                   return (
@@ -1041,10 +1260,16 @@ export default function FeedbackPage() {
                                         ...EXO,
                                         fontSize: 13,
                                         background: active
-                                          ? val ? `${C.teal}12` : "#fef2f230"
+                                          ? val
+                                            ? `${C.teal}12`
+                                            : "#fef2f230"
                                           : "transparent",
                                         border: `1px solid ${active ? (val ? C.teal : "#ef4444") : C.border}`,
-                                        color: active ? (val ? C.teal : "#ef4444") : C.muted,
+                                        color: active
+                                          ? val
+                                            ? C.teal
+                                            : "#ef4444"
+                                          : C.muted,
                                         cursor: "pointer",
                                         fontWeight: active ? 600 : 400,
                                       }}
@@ -1092,10 +1317,13 @@ export default function FeedbackPage() {
                           }}
                           onMouseEnter={(e) => {
                             if (!isPending)
-                              (e.currentTarget as HTMLElement).style.background = C.gold;
+                              (
+                                e.currentTarget as HTMLElement
+                              ).style.background = C.gold;
                           }}
                           onMouseLeave={(e) => {
-                            (e.currentTarget as HTMLElement).style.background = C.navy;
+                            (e.currentTarget as HTMLElement).style.background =
+                              C.navy;
                           }}
                         >
                           <Send size={12} />
@@ -1112,7 +1340,6 @@ export default function FeedbackPage() {
 
         {/* ── REVIEWS SECTION ─────────────────────────────────────────── */}
         <section className="max-w-6xl mx-auto w-full px-4 sm:px-8 pt-10 pb-20">
-
           {/* Section header */}
           <div
             data-aos="fade-up"
@@ -1127,7 +1354,9 @@ export default function FeedbackPage() {
               }}
             />
             <p style={{ ...EYEBROW, color: `${C.gold}99` }}>
-              {totalReviews > 0 ? `${totalReviews} Guest Review${totalReviews !== 1 ? "s" : ""}` : "Guest Reviews"}
+              {totalReviews > 0
+                ? `${totalReviews} Guest Review${totalReviews !== 1 ? "s" : ""}`
+                : "Guest Reviews"}
             </p>
             <div
               style={{
@@ -1160,7 +1389,14 @@ export default function FeedbackPage() {
                   {avgOverall}
                 </span>
                 <RatingStars value={Math.round(avgOverall)} size={16} />
-                <span style={{ ...EYEBROW, color: "rgba(221,211,188,0.40)", fontSize: 9, marginTop: 4 }}>
+                <span
+                  style={{
+                    ...EYEBROW,
+                    color: "rgba(221,211,188,0.40)",
+                    fontSize: 9,
+                    marginTop: 4,
+                  }}
+                >
                   out of 5
                 </span>
               </div>
@@ -1168,21 +1404,41 @@ export default function FeedbackPage() {
               {/* Per-category bars */}
               <div className="flex-1 min-w-[200px] grid grid-cols-1 gap-2">
                 {[
-                  { label: "Cleanliness", key: "ratingCleanliness" as keyof FeedbackEntry },
-                  { label: "Service", key: "ratingService" as keyof FeedbackEntry },
+                  {
+                    label: "Cleanliness",
+                    key: "ratingCleanliness" as keyof FeedbackEntry,
+                  },
+                  {
+                    label: "Service",
+                    key: "ratingService" as keyof FeedbackEntry,
+                  },
                   { label: "Food", key: "ratingFood" as keyof FeedbackEntry },
                   { label: "Value", key: "ratingValue" as keyof FeedbackEntry },
-                  { label: "Location", key: "ratingLocation" as keyof FeedbackEntry },
+                  {
+                    label: "Location",
+                    key: "ratingLocation" as keyof FeedbackEntry,
+                  },
                 ].map(({ label, key }) => {
                   const val = avg(feedbacks, key);
                   return (
                     <div key={label} className="flex items-center gap-3">
-                      <span style={{ ...EXO, fontSize: 12, color: "rgba(221,211,188,0.55)", width: 72, flexShrink: 0 }}>
+                      <span
+                        style={{
+                          ...EXO,
+                          fontSize: 12,
+                          color: "rgba(221,211,188,0.55)",
+                          width: 72,
+                          flexShrink: 0,
+                        }}
+                      >
                         {label}
                       </span>
                       <div
                         className="flex-1 h-1.5"
-                        style={{ background: "rgba(255,255,255,0.08)", borderRadius: 2 }}
+                        style={{
+                          background: "rgba(255,255,255,0.08)",
+                          borderRadius: 2,
+                        }}
                       >
                         <div
                           style={{
@@ -1194,7 +1450,15 @@ export default function FeedbackPage() {
                           }}
                         />
                       </div>
-                      <span style={{ ...EXO, fontSize: 11, color: "#d4a853", width: 28, textAlign: "right" }}>
+                      <span
+                        style={{
+                          ...EXO,
+                          fontSize: 11,
+                          color: "#d4a853",
+                          width: 28,
+                          textAlign: "right",
+                        }}
+                      >
                         {val}
                       </span>
                     </div>
@@ -1205,7 +1469,10 @@ export default function FeedbackPage() {
               {/* Recommend pct */}
               <div
                 className="flex flex-col items-center px-5 py-4"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
               >
                 <span
                   style={{
@@ -1218,7 +1485,14 @@ export default function FeedbackPage() {
                 >
                   {pctRecommend}%
                 </span>
-                <span style={{ ...EYEBROW, color: "rgba(221,211,188,0.40)", fontSize: 9, marginTop: 4 }}>
+                <span
+                  style={{
+                    ...EYEBROW,
+                    color: "rgba(221,211,188,0.40)",
+                    fontSize: 9,
+                    marginTop: 4,
+                  }}
+                >
                   Recommend
                 </span>
               </div>
@@ -1230,7 +1504,12 @@ export default function FeedbackPage() {
             <div className="flex items-center justify-center py-20">
               <div
                 className="animate-spin rounded-full border-2"
-                style={{ width: 34, height: 34, borderColor: C.teal, borderTopColor: "transparent" }}
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderColor: C.teal,
+                  borderTopColor: "transparent",
+                }}
               />
             </div>
           ) : feedbacks.length === 0 ? (

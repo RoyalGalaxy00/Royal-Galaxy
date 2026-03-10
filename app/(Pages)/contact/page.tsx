@@ -7,7 +7,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Exo_2 } from "next/font/google";
 import AOSInit from "@/components/ui/AOS";
-import { MapPin, Phone, Mail, MessageSquare, Send, ArrowRight } from "lucide-react";
+import {
+  MapPin,
+  Phone,
+  Mail,
+  MessageSquare,
+  Send,
+  ArrowRight,
+} from "lucide-react";
 import {
   Form,
   FormControl,
@@ -113,25 +120,31 @@ export default function ContactPage() {
   });
 
   async function onSubmit(values: FormValues) {
+    if (!isSignedIn || !user) {
+      toast.error("Please sign in to continue");
+      return;
+    }
+
+    if (!user.id) {
+      toast.error("User information not available");
+      return;
+    }
+
     const contactData = {
-      firstName: CapF(values.firstName.trim()),
-      lastName: CapF(values.lastName.trim()),
-      phone: values.phone.trim(),
-      email: values.email.trim(),
-      message: CapF(values.message.trim()),
-      userId: user?.id,
-      Sender_email: user?.primaryEmailAddress?.emailAddress,
-      Sender_name: user?.fullName,
-      collection: "ContactInfo",
-      Sender_avatar: user?.imageUrl,
+      firstName: CapF(values.firstName.trim()) as string,
+      lastName: CapF(values.lastName.trim()) as string,
+      phone: values.phone.trim() as string,
+      email: values.email.trim() as string,
+      message: CapF(values.message.trim()) as string,
+      userId: user.id as string,
+      Sender_email: user.primaryEmailAddress?.emailAddress as string,
+      Sender_name: user.fullName as string,
+      collection: "ContactInfo" as string,
+      Sender_avatar: user.imageUrl as string,
     };
 
     startTransition(async () => {
       try {
-        if (!isSignedIn || !user) {
-          toast.error("Please sign in to continue");
-          return;
-        }
         const result = await postInfo(contactData);
         if (result?.success) {
           toast.success("Message sent successfully!");
@@ -262,10 +275,7 @@ export default function ContactPage() {
             }}
             preserveAspectRatio="none"
           >
-            <path
-              d="M0,56 C480,0 960,0 1440,56 L1440,56 L0,56 Z"
-              fill={C.bg}
-            />
+            <path d="M0,56 C480,0 960,0 1440,56 L1440,56 L0,56 Z" fill={C.bg} />
           </svg>
         </section>
 
@@ -338,7 +348,12 @@ export default function ContactPage() {
                 <div className="min-w-0 flex-1">
                   <p
                     data-label
-                    style={{ ...EYEBROW, color: C.muted, marginBottom: 4, transition: "color 0.3s" }}
+                    style={{
+                      ...EYEBROW,
+                      color: C.muted,
+                      marginBottom: 4,
+                      transition: "color 0.3s",
+                    }}
                   >
                     {label}
                   </p>
@@ -383,7 +398,6 @@ export default function ContactPage() {
         {/* ── FORM + MAP ────────────────────────────────────────────────── */}
         <section className="container mx-auto px-5 pb-20">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
-
             {/* ── FORM ─────────────────────────────────────────────────── */}
             <div
               data-aos="fade-right"
@@ -652,7 +666,9 @@ export default function ContactPage() {
                       >
                         {isPending ? (
                           <>
-                            <span className="animate-spin inline-block">⏳</span>
+                            <span className="animate-spin inline-block">
+                              ⏳
+                            </span>
                             Sending…
                           </>
                         ) : (
@@ -673,7 +689,6 @@ export default function ContactPage() {
 
             {/* ── RIGHT COLUMN ─────────────────────────────────────────── */}
             <div className="flex flex-col gap-6">
-
               {/* Map */}
               <div
                 data-aos="fade-left"

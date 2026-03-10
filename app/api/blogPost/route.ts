@@ -10,14 +10,14 @@ export async function POST(request: NextRequest) {
         const formData = await request.formData();
 
         // Extract basic blog post data
-        const title = formData.get('title');
-        const excerpt = formData.get('excerpt');
-        const content = formData.get('content');
-        const uploader = formData.get('uploader');
-        const uploader_email = formData.get('uploader_email');
-        const uploader_avatar = formData.get('uploader_avatar');
+        const title = formData.get('title') as string;
+        const excerpt = formData.get('excerpt') as string;
+        const content = formData.get('content') as string;
+        const uploader = formData.get('uploader') as string;
+        const uploader_email = formData.get('uploader_email') as string;
+        const uploader_avatar = formData.get('uploader_avatar') as string;
         const user_id = formData.get('user_id');
-        const tags = JSON.parse(formData.get('tags') || '[]');
+        const tags = JSON.parse(formData.get('tags') as string || '[]');
 
         // Validate required fields
         if (!title || !excerpt || !content) {
@@ -28,8 +28,8 @@ export async function POST(request: NextRequest) {
         }
 
         // Get media files information
-        const mediaFilesCount = parseInt(formData.get('mediaFilesCount') || '0');
-        const mediaTypes = JSON.parse(formData.get('mediaTypes') || '[]');
+        const mediaFilesCount = parseInt(formData.get('mediaFilesCount') as string || '0');
+        const mediaTypes = JSON.parse(formData.get('mediaTypes') as string || '[]');
 
         // Array to store Cloudinary upload results
         const mediaFiles = [];
@@ -39,7 +39,15 @@ export async function POST(request: NextRequest) {
             const file = formData.get(`mediaFile_${i}`);
             if (!file) continue;
 
-            const fileType = mediaTypes[i] || (file.type.startsWith('video/') ? 'video' : 'image');
+            // Check if it's actually a File object
+            if (typeof file === 'string') {
+                console.warn(`Expected file but got string for mediaFile_${i}`);
+                continue;
+            }
+
+            // Now TypeScript knows file is File type
+            const fileTypeValue = mediaTypes[i] || (file.type.startsWith('video/') ? 'video' : 'image');
+            const fileType = fileTypeValue as 'image' | 'video'; // Type assertion
             const result = await uploadToCloudinary(file, fileType);
 
             mediaFiles.push({
@@ -83,8 +91,13 @@ export async function POST(request: NextRequest) {
 
     } catch (error) {
         console.error("Error creating blog post:", error);
+
+        const errorMessage = error instanceof Error
+            ? `Failed to create blog post: ${error.message}`
+            : "Failed to create blog post: An unexpected error occurred";
+
         return NextResponse.json(
-            { error: "Failed to create blog post: " + error.message },
+            { error: errorMessage },
             { status: 500 }
         );
     }
@@ -92,34 +105,29 @@ export async function POST(request: NextRequest) {
 
 /**
  * Uploads a file to Cloudinary
- * @param {File} file - The file to upload
- * @param {string} fileType - Either 'image' or 'video'
- * @returns {Promise<Object>} Cloudinary upload result
+ * @param file - The file to upload
+ * @param fileType - Either 'image' or 'video'
+ * @returns Cloudinary upload result
  */
-async function uploadToCloudinary(file, fileType) {
+async function uploadToCloudinary(file: File, fileType: 'image' | 'video') {
     try {
-        // Convert file to buffer and then to base64
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
         const base64 = buffer.toString('base64');
         const dataURI = `data:${file.type};base64,${base64}`;
 
-        // Set upload options
         const options = {
             folder: 'Er-Blogs',
-            resource_type: fileType === 'video' ? 'video' : 'image',
-            // Add additional options as needed
-            transformation: fileType === 'image' ? [
-                { quality: 'auto:good', fetch_format: 'auto' }
-            ] : [
-                { quality: 'auto:good' }
-            ]
+            resource_type: fileType as 'image' | 'video', // Type assertion
+            transformation: fileType === 'image'
+                ? [{ quality: 'auto:good', fetch_format: 'auto' }]
+                : [{ quality: 'auto:good' }]
         };
 
-        // Upload to Cloudinary
         return await cloudinary.uploader.upload(dataURI, options);
     } catch (error) {
         console.error("Error uploading to Cloudinary:", error);
-        throw new Error(`Cloudinary upload failed: ${error.message}`);
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        throw new Error(`Cloudinary upload failed: ${errorMessage}`);
     }
 }

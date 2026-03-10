@@ -1,64 +1,49 @@
-"use client"
-import { redirect } from 'next/navigation'
-import { checkRole } from '@/utils/roles'
-import { SearchUsers } from './SearchUsers'
-import { clerkClient } from '@clerk/nextjs/server'
-import { removeRole, setRole } from './_actions'
+// app/(Pages)/admin/page.tsx
+import { redirect } from "next/navigation";
+import { checkRole } from "@/utils/roles";
+import { SearchUsers } from "./SearchUsers";
+import { clerkClient } from "@clerk/nextjs/server";
+import { AdminUserList } from "./AdminUserList";
 
 export default async function AdminDashboard(params: {
-  searchParams: Promise<{ search?: string }>
+  searchParams: Promise<{ search?: string }>;
 }) {
-  if (!checkRole('admin')) {
-    redirect('/')
+  if (!checkRole("admin")) {
+    redirect("/");
   }
 
-  const query = (await params.searchParams).search
+  const query = (await params.searchParams).search;
+  const client = await clerkClient();
+  const usersData = query
+    ? (await client.users.getUserList({ query })).data
+    : [];
 
-  const client = await clerkClient()
-
-  const users = query ? (await client.users.getUserList({ query })).data : []
+  // Transform Clerk user objects to plain serializable objects with correct typing
+  const users = usersData.map((user) => ({
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    emailAddresses: user.emailAddresses.map((email) => ({
+      id: email.id,
+      emailAddress: email.emailAddress,
+    })),
+    primaryEmailAddressId: user.primaryEmailAddressId,
+    publicMetadata: {
+      role: user.publicMetadata?.role as string | undefined, // Type assertion
+    },
+    imageUrl: user.imageUrl,
+  }));
 
   return (
     <>
-      <p>This is the protected admin dashboard restricted to users with the `admin` Role.</p>
+      <p className="mb-4">
+        This is the protected admin dashboard restricted to users with the
+        `admin` Role.
+      </p>
 
       <SearchUsers />
 
-      {users.map((user) => {
-        return (
-          <div key={user.id}>
-            <div>
-              {user.firstName} {user.lastName}
-            </div>
-
-            <div>
-              {
-                user.emailAddresses.find((email) => email.id === user.primaryEmailAddressId)
-                  ?.emailAddress
-              }
-            </div>
-
-            <div>{user.publicMetadata.role as string}</div>
-
-            <form action={setRole}>
-              <input type="hidden" value={user.id} name="id" />
-              <input type="hidden" value="admin" name="role" />
-              <button type="submit">Make Admin</button>
-            </form>
-
-            <form action={setRole}>
-              <input type="hidden" value={user.id} name="id" />
-              <input type="hidden" value="moderator" name="role" />
-              <button type="submit">Make Moderator</button>
-            </form>
-
-            <form action={removeRole}>
-              <input type="hidden" value={user.id} name="id" />
-              <button type="submit">Remove Role</button>
-            </form>
-          </div>
-        )
-      })}
+      <AdminUserList users={users} />
     </>
-  )
+  );
 }

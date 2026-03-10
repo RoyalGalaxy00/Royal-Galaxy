@@ -115,11 +115,9 @@ export default function ContactMessagesPage() {
   // Uses msg.email — the address the visitor typed in the contact form
   const openReply = (msg: ContactInfo) => {
     setActiveMsg(msg);
-    setReplySubject(
-      `Re: Your enquiry — Royal Galaxy Hotel & Lodge`
-    );
+    setReplySubject(`Re: Your enquiry — Royal Galaxy Hotel & Lodge`);
     setReplyBody(
-      `Dear ${msg.firstName},\n\nThank you for reaching out to Royal Galaxy Hotel & Lodge.\n\n`
+      `Dear ${msg.firstName},\n\nThank you for reaching out to Royal Galaxy Hotel & Lodge.\n\n`,
     );
     setReplyOpen(true);
   };
@@ -146,8 +144,8 @@ export default function ContactMessagesPage() {
         toast.success(`Reply sent to ${activeMsg.email}!`);
         setMessages((prev) =>
           prev.map((m) =>
-            m._id === activeMsg._id ? { ...m, replied: true } : m
-          )
+            m._id === activeMsg._id ? { ...m, replied: true } : m,
+          ),
         );
         setReplyOpen(false);
       } else {
@@ -331,9 +329,7 @@ export default function ContactMessagesPage() {
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <Inbox size={48} style={{ color: C.border }} />
             <p style={{ ...EXO, color: C.muted, fontSize: 15 }}>
-              {search
-                ? "No messages match your search."
-                : "No messages yet."}
+              {search ? "No messages match your search." : "No messages yet."}
             </p>
           </div>
         ) : (
@@ -430,9 +426,7 @@ export default function ContactMessagesPage() {
                     borderLeft: `3px solid ${C.gold}`,
                   }}
                 >
-                  <p
-                    style={{ ...EYEBROW, color: C.muted, marginBottom: 6 }}
-                  >
+                  <p style={{ ...EYEBROW, color: C.muted, marginBottom: 6 }}>
                     Their Message
                   </p>
                   <p

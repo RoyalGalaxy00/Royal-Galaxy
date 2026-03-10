@@ -6,8 +6,10 @@ export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
         const collection = await searchParams.get("collection");
+        console.log('hiii')
         const db = await connectDB();
         if (!db) {
+            console.log("noo")
             return NextResponse.json({ success: false, message: "Error in database connection." });
         }
         if (!collection) {

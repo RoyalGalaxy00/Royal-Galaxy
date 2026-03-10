@@ -1,12 +1,11 @@
-
 import type { Metadata } from "next";
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import NavBar from "@/components/ui/navbar"; 
-import { ClerkProvider } from '@clerk/nextjs'
+import NavBar from "@/components/ui/navbar";
+import { ClerkProvider } from "@clerk/nextjs";
 import Footer from "@/components/ui/footer";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -36,10 +35,11 @@ export default function RootLayout({
         >
           <NavBar />
           {children}
-<Toaster 
-  position="top-center"   // or "top-left", "top-right"
-  className="bg-gray-900 text-amber-50 flex justify-center z-50"
-/>          <Footer />
+          <Toaster
+            position="top-center" // or "top-left", "top-right"
+            className="bg-gray-900 text-amber-50 flex justify-center z-50"
+          />{" "}
+          <Footer />
         </body>
       </html>
     </ClerkProvider>

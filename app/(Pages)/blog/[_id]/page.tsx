@@ -148,7 +148,7 @@ export default function BlogPostPage({
     (async () => {
       try {
         const res = await fetch(
-          `/api/getRequestById?_id=${_id}&collection=${collection}`
+          `/api/getRequestById?_id=${_id}&collection=${collection}`,
         );
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
@@ -168,7 +168,7 @@ export default function BlogPostPage({
     setSlideCount(carouselApi.scrollSnapList().length);
     setCurrentSlide(carouselApi.selectedScrollSnap() + 1);
     carouselApi.on("select", () =>
-      setCurrentSlide(carouselApi.selectedScrollSnap() + 1)
+      setCurrentSlide(carouselApi.selectedScrollSnap() + 1),
     );
   }, [carouselApi]);
 
@@ -215,7 +215,7 @@ export default function BlogPostPage({
       // Post deleted, but some Cloudinary media could not be removed
       if (result.media?.failed > 0) {
         setMediaWarning(
-          `Post deleted, but ${result.media.failed} media file(s) could not be removed from storage.`
+          `Post deleted, but ${result.media.failed} media file(s) could not be removed from storage.`,
         );
         // Let user read the warning before navigating away
         await new Promise((r) => setTimeout(r, 2500));
@@ -269,7 +269,7 @@ export default function BlogPostPage({
     >
       {/* ── STICKY HEADER ──────────────────────────────────────────────── */}
       <header
-        className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 border-b"
+        className=" flex items-center justify-between px-4 py-3 border-b"
         style={{ background: C.cardBg, borderColor: C.border }}
       >
         {/* Back */}
@@ -461,10 +461,7 @@ export default function BlogPostPage({
           }}
           preserveAspectRatio="none"
         >
-          <path
-            d="M0,48 C360,0 1080,0 1440,48 L1440,48 L0,48 Z"
-            fill={C.bg}
-          />
+          <path d="M0,48 C360,0 1080,0 1440,48 L1440,48 L0,48 Z" fill={C.bg} />
         </svg>
       </section>
 
@@ -472,7 +469,6 @@ export default function BlogPostPage({
       <main className="max-w-6xl mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-10">
         {/* MAIN COLUMN */}
         <div className="flex flex-col gap-8">
-
           {/* ── CAROUSEL ─────────────────────────────────────────────────── */}
           {blogPost.media && blogPost.media.length > 0 && (
             <div
@@ -541,9 +537,7 @@ export default function BlogPostPage({
                         aria-label={`Go to slide ${i + 1}`}
                         style={{
                           background:
-                            currentSlide === i + 1
-                              ? C.gold
-                              : `${C.gold}30`,
+                            currentSlide === i + 1 ? C.gold : `${C.gold}30`,
                           width: currentSlide === i + 1 ? "16px" : "8px",
                           height: "8px",
                           borderRadius: "9999px",
@@ -643,7 +637,6 @@ export default function BlogPostPage({
 
         {/* SIDEBAR ──────────────────────────────────────────────────────── */}
         <aside className="flex flex-col gap-6">
-
           {/* Uploader card — privileged only ────────────────────────────── */}
           {isPrivileged && (
             <div
@@ -893,7 +886,7 @@ export default function BlogPostPage({
           ← All Posts
         </Link>
       </footer>
-      <CTA/>
+      <CTA />
     </div>
   );
 }

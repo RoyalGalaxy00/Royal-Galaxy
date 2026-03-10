@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -43,6 +44,7 @@ const carouselItems = [
       "Every evening, the Stick Dance and other traditional Tharu performances light up Sauraha. Experience vibrant costumes, rhythmic drumbeats, and storytelling through dance.",
   },
 ];
+
 const body = {
   fontFamily: "var(--font-exo2)",
   fontWeight: 400,
@@ -57,8 +59,9 @@ const eyebrow: React.CSSProperties = {
   fontSize: "11px",
   lineHeight: "20px",
 };
+
 export function Nearby() {
-  const [api, setApi] = useState();
+  const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
 
   // Autoplay plugin

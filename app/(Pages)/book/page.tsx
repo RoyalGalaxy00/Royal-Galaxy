@@ -92,7 +92,12 @@ const rooms = [
       "Cozy room with essential amenities for a comfortable stay. Perfect for solo travellers or couples.",
     maxAdults: 2,
     maxChildren: 0,
-    amenities: ["Free WiFi", "Air Conditioning", "Flat-screen TV", "En-suite Bathroom"],
+    amenities: [
+      "Free WiFi",
+      "Air Conditioning",
+      "Flat-screen TV",
+      "En-suite Bathroom",
+    ],
   },
   {
     _id: 2,
@@ -103,7 +108,13 @@ const rooms = [
       "Spacious room with premium furnishings, a garden view and enhanced in-room facilities.",
     maxAdults: 3,
     maxChildren: 0,
-    amenities: ["Free WiFi", "Air Conditioning", "Mini Bar", "Flat-screen TV", "Room Service"],
+    amenities: [
+      "Free WiFi",
+      "Air Conditioning",
+      "Mini Bar",
+      "Flat-screen TV",
+      "Room Service",
+    ],
   },
   {
     _id: 3,
@@ -114,7 +125,14 @@ const rooms = [
       "Luxurious suite with a separate living area and sweeping panoramic views of Chitwan.",
     maxAdults: 4,
     maxChildren: 1,
-    amenities: ["Free WiFi", "Air Conditioning", "Mini Bar", "Room Service", "Jacuzzi", "Balcony"],
+    amenities: [
+      "Free WiFi",
+      "Air Conditioning",
+      "Mini Bar",
+      "Room Service",
+      "Jacuzzi",
+      "Balcony",
+    ],
   },
   {
     _id: 4,
@@ -125,7 +143,13 @@ const rooms = [
       "Perfect for families — interconnected rooms with kid-friendly amenities all included.",
     maxAdults: 4,
     maxChildren: 1,
-    amenities: ["Free WiFi", "Air Conditioning", "Mini Bar", "Room Service", "Kids Club Access"],
+    amenities: [
+      "Free WiFi",
+      "Air Conditioning",
+      "Mini Bar",
+      "Room Service",
+      "Kids Club Access",
+    ],
   },
   {
     _id: 5,
@@ -195,9 +219,7 @@ const formSchema = z.object({
   checkInTime: z.string().trim().min(1, "Check-in time is required"),
   checkOutDate: z.string().trim().min(1, "Check-out date is required"),
   checkOutTime: z.string().trim().min(1, "Check-out time is required"),
-  numberOfAdults: z.enum(["1", "2", "3", "4", "4+"], {
-    required_error: "Please select number of people",
-  }),
+  numberOfAdults: z.enum(["1", "2", "3", "4", "4+"]),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -240,17 +262,31 @@ function RoomCard({
         <div
           className="absolute inset-0"
           style={{
-            background: "linear-gradient(to top, rgba(14,26,46,0.55) 0%, transparent 55%)",
+            background:
+              "linear-gradient(to top, rgba(14,26,46,0.55) 0%, transparent 55%)",
           }}
         />
         <div
           className="absolute top-3 right-3 px-3 py-1"
-          style={{ background: C.navy, ...EYEBROW, color: C.gold, fontSize: 10 }}
+          style={{
+            background: C.navy,
+            ...EYEBROW,
+            color: C.gold,
+            fontSize: 10,
+          }}
         >
           Rs. {room.price.toLocaleString("en-NP")} / night
         </div>
         <div className="absolute bottom-0 left-0 px-5 pb-4">
-          <h2 style={{ ...EXO, fontWeight: 300, fontSize: "1.2rem", letterSpacing: "0.04em", color: "#fff" }}>
+          <h2
+            style={{
+              ...EXO,
+              fontWeight: 300,
+              fontSize: "1.2rem",
+              letterSpacing: "0.04em",
+              color: "#fff",
+            }}
+          >
             {room.name}
           </h2>
         </div>
@@ -258,18 +294,32 @@ function RoomCard({
 
       <div className="flex flex-col flex-1 p-5">
         <div className="flex items-center gap-4 mb-3">
-          <span className="flex items-center gap-1.5" style={{ ...EXO, fontSize: 12, color: C.gold }}>
+          <span
+            className="flex items-center gap-1.5"
+            style={{ ...EXO, fontSize: 12, color: C.gold }}
+          >
             <Users size={13} />
             {room.maxAdults} Adults
             {room.maxChildren > 0 ? `, ${room.maxChildren} Children` : ""}
           </span>
-          <span className="flex items-center gap-1.5" style={{ ...EXO, fontSize: 12, color: C.muted }}>
+          <span
+            className="flex items-center gap-1.5"
+            style={{ ...EXO, fontSize: 12, color: C.muted }}
+          >
             <BedDouble size={13} />
             {room.name.toLowerCase().includes("suite") ? "Suite" : "Room"}
           </span>
         </div>
 
-        <p style={{ ...EXO, fontSize: 13, lineHeight: 1.75, color: C.muted, marginBottom: 14 }}>
+        <p
+          style={{
+            ...EXO,
+            fontSize: 13,
+            lineHeight: 1.75,
+            color: C.muted,
+            marginBottom: 14,
+          }}
+        >
           {room.description}
         </p>
 
@@ -278,7 +328,14 @@ function RoomCard({
             <span
               key={a}
               className="flex items-center gap-1 px-2 py-1"
-              style={{ ...EXO, fontSize: 10, letterSpacing: "0.06em", fontWeight: 500, color: C.navy, border: `1px solid ${C.border}` }}
+              style={{
+                ...EXO,
+                fontSize: 10,
+                letterSpacing: "0.06em",
+                fontWeight: 500,
+                color: C.navy,
+                border: `1px solid ${C.border}`,
+              }}
             >
               <Check size={9} style={{ color: C.gold }} />
               {a}
@@ -289,12 +346,26 @@ function RoomCard({
         <button
           onClick={() => onBook(room)}
           className="group/btn mt-auto w-full flex items-center justify-center gap-2 py-3 transition-all"
-          style={{ background: C.navy, color: C.cream, ...EYEBROW, fontSize: 10, border: "none", cursor: "pointer" }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = C.gold)}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = C.navy)}
+          style={{
+            background: C.navy,
+            color: C.cream,
+            ...EYEBROW,
+            fontSize: 10,
+            border: "none",
+            cursor: "pointer",
+          }}
+          onMouseEnter={(e) =>
+            ((e.currentTarget as HTMLElement).style.background = C.gold)
+          }
+          onMouseLeave={(e) =>
+            ((e.currentTarget as HTMLElement).style.background = C.navy)
+          }
         >
           Book This Room
-          <ArrowRight size={12} className="transition-transform group-hover/btn:translate-x-1" />
+          <ArrowRight
+            size={12}
+            className="transition-transform group-hover/btn:translate-x-1"
+          />
         </button>
       </div>
     </article>
@@ -348,25 +419,25 @@ function BookingSheet({
       return;
     }
     const BookerData = {
-      firstName: CapF(values.firstName.trim()),
-      lastName: CapF(values.lastName.trim()),
-      address: CapF(values.address.trim()),
-      city: CapF(values.city.trim()),
-      state: CapF(values.state.trim()),
-      zipCode: CapF(values.zipCode.trim()),
-      phone: values.phone,
-      email: values.email,
-      checkInDate: values.checkInDate,
-      checkInTime: values.checkInTime,
-      checkOutDate: values.checkOutDate,
-      checkOutTime: values.checkOutTime,
-      numberOfGuests: values.numberOfAdults,
-      room: room?.name,
-      collection: "Bookings",
-      userId: user.id,
-      Sender_email: user.primaryEmailAddress?.emailAddress,
-      Sender_name: user.fullName,
-      Sender_avatar: user.imageUrl,
+      firstName: CapF(values.firstName.trim()) as string,
+      lastName: CapF(values.lastName.trim()) as string,
+      address: CapF(values.address.trim()) as string,
+      city: CapF(values.city.trim()) as string,
+      state: CapF(values.state.trim()) as string,
+      zipCode: CapF(values.zipCode.trim()) as string,
+      phone: values.phone as string,
+      email: values.email as string,
+      checkInDate: values.checkInDate as string,
+      checkInTime: values.checkInTime as string,
+      checkOutDate: values.checkOutDate as string,
+      checkOutTime: values.checkOutTime as string,
+      numberOfGuests: values.numberOfAdults as string,
+      room: room?.name as string,
+      collection: "Bookings" as string,
+      userId: user.id as string,
+      Sender_email: user.primaryEmailAddress?.emailAddress as string,
+      Sender_name: user.fullName as string,
+      Sender_avatar: user.imageUrl as string,
     };
 
     startTransition(async () => {
@@ -449,7 +520,12 @@ function BookingSheet({
             </SheetTitle>
             {room && (
               <SheetDescription
-                style={{ ...EXO, color: `${C.cream}70`, fontSize: 13, marginTop: 2 }}
+                style={{
+                  ...EXO,
+                  color: `${C.cream}70`,
+                  fontSize: 13,
+                  marginTop: 2,
+                }}
               >
                 Rs. {room.price.toLocaleString("en-NP")} / night ·{" "}
                 {room.maxAdults} Adults
@@ -470,7 +546,10 @@ function BookingSheet({
               <div className="flex flex-col items-center text-center py-12 gap-4">
                 <div
                   className="w-14 h-14 rounded-full flex items-center justify-center"
-                  style={{ background: `${C.gold}18`, border: `1px solid ${C.gold}40` }}
+                  style={{
+                    background: `${C.gold}18`,
+                    border: `1px solid ${C.gold}40`,
+                  }}
                 >
                   <Check size={24} style={{ color: C.gold }} />
                 </div>
@@ -486,10 +565,21 @@ function BookingSheet({
                 >
                   Reservation Received
                 </h3>
-                <p style={{ ...EXO, fontSize: 14, color: C.muted, lineHeight: 1.8, maxWidth: 380 }}>
-                  Thank you for choosing Royal Galaxy. We'll contact you shortly to confirm
-                  your booking for{" "}
-                  <span style={{ color: C.navy, fontWeight: 600 }}>{room?.name}</span>.
+                <p
+                  style={{
+                    ...EXO,
+                    fontSize: 14,
+                    color: C.muted,
+                    lineHeight: 1.8,
+                    maxWidth: 380,
+                  }}
+                >
+                  Thank you for choosing Royal Galaxy. We'll contact you shortly
+                  to confirm your booking for{" "}
+                  <span style={{ color: C.navy, fontWeight: 600 }}>
+                    {room?.name}
+                  </span>
+                  .
                 </p>
                 <button
                   onClick={() => handleOpenChange(false)}
@@ -502,8 +592,12 @@ function BookingSheet({
                     border: "none",
                     cursor: "pointer",
                   }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = C.gold)}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = C.navy)}
+                  onMouseEnter={(e) =>
+                    ((e.currentTarget as HTMLElement).style.background = C.gold)
+                  }
+                  onMouseLeave={(e) =>
+                    ((e.currentTarget as HTMLElement).style.background = C.navy)
+                  }
                 >
                   Close
                 </button>
@@ -511,7 +605,11 @@ function BookingSheet({
             ) : (
               /* ── FORM ─────────────────────────────────────────────── */
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" noValidate>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                  noValidate
+                >
                   <p style={{ ...EYEBROW, color: C.gold }}>Guest Details</p>
 
                   {/* Name */}
@@ -521,7 +619,9 @@ function BookingSheet({
                       name="firstName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel style={{ ...EYEBROW, color: C.muted }}>First Name</FormLabel>
+                          <FormLabel style={{ ...EYEBROW, color: C.muted }}>
+                            First Name
+                          </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Saurav"
@@ -539,7 +639,9 @@ function BookingSheet({
                       name="lastName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel style={{ ...EYEBROW, color: C.muted }}>Last Name</FormLabel>
+                          <FormLabel style={{ ...EYEBROW, color: C.muted }}>
+                            Last Name
+                          </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Kumal"
@@ -560,7 +662,9 @@ function BookingSheet({
                     name="address"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel style={{ ...EYEBROW, color: C.muted }}>Address</FormLabel>
+                        <FormLabel style={{ ...EYEBROW, color: C.muted }}>
+                          Address
+                        </FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Street address"
@@ -581,7 +685,9 @@ function BookingSheet({
                       name="city"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel style={{ ...EYEBROW, color: C.muted }}>City</FormLabel>
+                          <FormLabel style={{ ...EYEBROW, color: C.muted }}>
+                            City
+                          </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Bharatpur"
@@ -599,14 +705,21 @@ function BookingSheet({
                       name="state"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel style={{ ...EYEBROW, color: C.muted }}>Province</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormLabel style={{ ...EYEBROW, color: C.muted }}>
+                            Province
+                          </FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger
                                 style={{
                                   ...EXO,
                                   background: "transparent",
-                                  borderColor: errors.state ? "#ef4444" : C.border,
+                                  borderColor: errors.state
+                                    ? "#ef4444"
+                                    : C.border,
                                   borderRadius: 0,
                                   color: C.navy,
                                   fontSize: 14,
@@ -617,10 +730,22 @@ function BookingSheet({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent
-                              style={{ background: C.cardBg, borderColor: C.border, borderRadius: 0 }}
+                              style={{
+                                background: C.cardBg,
+                                borderColor: C.border,
+                                borderRadius: 0,
+                              }}
                             >
                               {nepalProvinces.map((p) => (
-                                <SelectItem key={p} value={p} style={{ ...EXO, color: C.navy, fontSize: 13 }}>
+                                <SelectItem
+                                  key={p}
+                                  value={p}
+                                  style={{
+                                    ...EXO,
+                                    color: C.navy,
+                                    fontSize: 13,
+                                  }}
+                                >
                                   {p}
                                 </SelectItem>
                               ))}
@@ -635,7 +760,9 @@ function BookingSheet({
                       name="zipCode"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel style={{ ...EYEBROW, color: C.muted }}>Zip Code</FormLabel>
+                          <FormLabel style={{ ...EYEBROW, color: C.muted }}>
+                            Zip Code
+                          </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="44200"
@@ -657,7 +784,9 @@ function BookingSheet({
                       name="phone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel style={{ ...EYEBROW, color: C.muted }}>Phone</FormLabel>
+                          <FormLabel style={{ ...EYEBROW, color: C.muted }}>
+                            Phone
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="tel"
@@ -676,7 +805,9 @@ function BookingSheet({
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel style={{ ...EYEBROW, color: C.muted }}>Email</FormLabel>
+                          <FormLabel style={{ ...EYEBROW, color: C.muted }}>
+                            Email
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="email"
@@ -801,7 +932,9 @@ function BookingSheet({
                     name="numberOfAdults"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel style={{ ...EYEBROW, color: C.muted }}>Number of Guests</FormLabel>
+                        <FormLabel style={{ ...EYEBROW, color: C.muted }}>
+                          Number of Guests
+                        </FormLabel>
                         <FormControl>
                           <RadioGroup
                             onValueChange={field.onChange}
@@ -809,7 +942,10 @@ function BookingSheet({
                             className="flex flex-wrap gap-3 pt-1"
                           >
                             {["1", "2", "3", "4", "4+"].map((num) => (
-                              <div key={num} className="flex items-center space-x-2">
+                              <div
+                                key={num}
+                                className="flex items-center space-x-2"
+                              >
                                 <RadioGroupItem
                                   value={num}
                                   id={`guest-${num}`}
@@ -817,7 +953,12 @@ function BookingSheet({
                                 />
                                 <label
                                   htmlFor={`guest-${num}`}
-                                  style={{ ...EXO, fontSize: 13, color: C.navy, cursor: "pointer" }}
+                                  style={{
+                                    ...EXO,
+                                    fontSize: 13,
+                                    color: C.navy,
+                                    cursor: "pointer",
+                                  }}
                                 >
                                   {num}
                                 </label>
@@ -865,10 +1006,12 @@ function BookingSheet({
                       }}
                       onMouseEnter={(e) => {
                         if (!isPending)
-                          (e.currentTarget as HTMLElement).style.background = C.gold;
+                          (e.currentTarget as HTMLElement).style.background =
+                            C.gold;
                       }}
                       onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLElement).style.background = C.navy;
+                        (e.currentTarget as HTMLElement).style.background =
+                          C.navy;
                       }}
                     >
                       {isPending ? "Submitting…" : "Confirm Reservation"}
@@ -886,12 +1029,17 @@ function BookingSheet({
 
 // ── Page ──────────────────────────────────────────────────────────────────
 export default function BookPage() {
-  const [selectedRoom, setSelectedRoom] = useState<(typeof rooms)[0] | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<(typeof rooms)[0] | null>(
+    null,
+  );
 
   return (
     <>
       <AOSInit />
-      <div className={`${exo2.variable} min-h-screen`} style={{ background: C.bg, color: C.navy }}>
+      <div
+        className={`${exo2.variable} min-h-screen`}
+        style={{ background: C.bg, color: C.navy }}
+      >
         {/* ── TOP GOLD LINE ──────────────────────────────────────────── */}
         <div
           style={{
@@ -934,7 +1082,9 @@ export default function BookPage() {
               data-aos-duration="700"
             >
               <div style={{ width: 28, height: 1, background: C.gold }} />
-              <span style={{ ...EYEBROW, color: C.gold }}>Royal Galaxy Hotel &amp; Lodge</span>
+              <span style={{ ...EYEBROW, color: C.gold }}>
+                Royal Galaxy Hotel &amp; Lodge
+              </span>
               <div style={{ width: 28, height: 1, background: C.gold }} />
             </div>
 
@@ -952,7 +1102,15 @@ export default function BookPage() {
               }}
             >
               Reserve Your{" "}
-              <em style={{ color: C.goldLight, fontStyle: "italic", fontWeight: 300 }}>Stay</em>
+              <em
+                style={{
+                  color: C.goldLight,
+                  fontStyle: "italic",
+                  fontWeight: 300,
+                }}
+              >
+                Stay
+              </em>
             </h1>
 
             <p
@@ -976,7 +1134,13 @@ export default function BookPage() {
           <svg
             viewBox="0 0 1440 56"
             xmlns="http://www.w3.org/2000/svg"
-            style={{ position: "absolute", bottom: 0, left: 0, width: "100%", display: "block" }}
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              width: "100%",
+              display: "block",
+            }}
             preserveAspectRatio="none"
           >
             <path d="M0,56 C480,0 960,0 1440,56 L1440,56 L0,56 Z" fill={C.bg} />
@@ -985,7 +1149,12 @@ export default function BookPage() {
 
         {/* ── INTRO ──────────────────────────────────────────────────── */}
         <section className="max-w-3xl mx-auto text-center px-5 pt-14 pb-8">
-          <p style={{ ...EYEBROW, color: C.gold }} className="mb-3" data-aos="fade-up" data-aos-duration="600">
+          <p
+            style={{ ...EYEBROW, color: C.gold }}
+            className="mb-3"
+            data-aos="fade-up"
+            data-aos-duration="600"
+          >
             Our Accommodations
           </p>
           <h2
@@ -1003,7 +1172,9 @@ export default function BookPage() {
             className="mb-4"
           >
             Choose Your{" "}
-            <em style={{ color: C.gold, fontStyle: "italic", fontWeight: 300 }}>Perfect Room</em>
+            <em style={{ color: C.gold, fontStyle: "italic", fontWeight: 300 }}>
+              Perfect Room
+            </em>
           </h2>
           <p
             data-aos="fade-up"
@@ -1011,9 +1182,9 @@ export default function BookPage() {
             data-aos-delay="160"
             style={{ ...EXO, fontSize: 14, lineHeight: 1.85, color: C.muted }}
           >
-            From cozy standard rooms to our magnificent presidential suite, every space at Royal
-            Galaxy is crafted for comfort and luxury. Select a room below and complete your
-            reservation in minutes.
+            From cozy standard rooms to our magnificent presidential suite,
+            every space at Royal Galaxy is crafted for comfort and luxury.
+            Select a room below and complete your reservation in minutes.
           </p>
         </section>
 
@@ -1021,7 +1192,12 @@ export default function BookPage() {
         <section className="max-w-6xl mx-auto px-5 pb-20">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {rooms.map((room, i) => (
-              <RoomCard key={room._id} room={room} onBook={setSelectedRoom} index={i} />
+              <RoomCard
+                key={room._id}
+                room={room}
+                onBook={setSelectedRoom}
+                index={i}
+              />
             ))}
           </div>
         </section>
