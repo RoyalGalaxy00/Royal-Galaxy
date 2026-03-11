@@ -1,11 +1,46 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Exo_2 } from "next/font/google";
 import AOSInit from "@/components/ui/AOS";
 import Image from "next/image";
 import CTA from "@/components/ui/CTA";
-import { X, ZoomIn, ChevronLeft, ChevronRight } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
+import { useForm } from "react-hook-form";
+import {
+  X,
+  ZoomIn,
+  ChevronLeft,
+  ChevronRight,
+  ImagePlus,
+  Upload,
+  Trash2,
+  Loader2,
+  CloudUpload,
+} from "lucide-react";
+
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 // ── Font ───────────────────────────────────────────────────────────────────
 const exo2 = Exo_2({
@@ -31,186 +66,24 @@ const eyebrow: React.CSSProperties = {
   lineHeight: "20px",
 };
 
-// ── Gallery Images ─────────────────────────────────────────────────────────
+// ── Types ──────────────────────────────────────────────────────────────────
 interface GalleryImage {
-  id: number;
-  src: string;
-  alt: string;
-  category: string;
-  caption: string;
-  span?: "wide" | "tall" | "normal";
+  _id: string;
+  url: string;
+  public_id: string;
+  width: number;
+  height: number;
+  format: string;
+  uploader_id: string;
+  uploader_name: string;
+  uploader_email: string;
+  uploader_avatar: string;
+  created_at: string;
 }
 
-const galleryImages: GalleryImage[] = [
-  {
-    id: 1,
-    src: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
-    alt: "Luxury suite bedroom",
-    category: "Rooms",
-    caption: "Presidential Suite",
-    span: "wide",
-  },
-  {
-    id: 2,
-    src: "https://images.unsplash.com/photo-1591088398332-8a7791972843?w=800&q=80",
-    alt: "Deluxe room interior",
-    category: "Rooms",
-    caption: "Deluxe Room",
-    span: "normal",
-  },
-  {
-    id: 3,
-    src: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=800&q=80",
-    alt: "Modern bathroom",
-    category: "Rooms",
-    caption: "En-suite Bathroom",
-    span: "normal",
-  },
-  {
-    id: 4,
-    src: "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=800&q=80",
-    alt: "Family suite",
-    category: "Rooms",
-    caption: "Family Suite",
-    span: "tall",
-  },
-  {
-    id: 5,
-    src: "https://images.unsplash.com/photo-1566195992011-5f6b21e539aa?w=800&q=80",
-    alt: "Executive suite living area",
-    category: "Rooms",
-    caption: "Executive Suite",
-    span: "normal",
-  },
-  {
-    id: 6,
-    src: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80",
-    alt: "Jungle forest at Chitwan",
-    category: "Nature",
-    caption: "Chitwan Jungle",
-    span: "wide",
-  },
-  {
-    id: 7,
-    src: "https://images.unsplash.com/photo-1549366021-9f761d450615?w=800&q=80",
-    alt: "Elephant in the wild",
-    category: "Nature",
-    caption: "Wild Elephant",
-    span: "normal",
-  },
-  {
-    id: 8,
-    src: "https://images.unsplash.com/photo-1474511320723-9a56873867b5?w=800&q=80",
-    alt: "Deer in Chitwan National Park",
-    category: "Nature",
-    caption: "National Park Wildlife",
-    span: "normal",
-  },
-  {
-    id: 9,
-    src: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80",
-    alt: "River through the jungle",
-    category: "Nature",
-    caption: "Rapti River",
-    span: "tall",
-  },
-  {
-    id: 10,
-    src: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80",
-    alt: "Fine dining restaurant",
-    category: "Dining",
-    caption: "Restaurant",
-    span: "wide",
-  },
-  {
-    id: 11,
-    src: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80",
-    alt: "Nepalese cuisine spread",
-    category: "Dining",
-    caption: "Local Cuisine",
-    span: "normal",
-  },
-  {
-    id: 12,
-    src: "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=800&q=80",
-    alt: "Cocktails and drinks",
-    category: "Dining",
-    caption: "Signature Cocktails",
-    span: "normal",
-  },
-  {
-    id: 13,
-    src: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800&q=80",
-    alt: "Outdoor dining setup",
-    category: "Dining",
-    caption: "Outdoor Dining",
-    span: "normal",
-  },
-  {
-    id: 14,
-    src: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80",
-    alt: "Boat safari on river",
-    category: "Activities",
-    caption: "River Boating",
-    span: "wide",
-  },
-  {
-    id: 15,
-    src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-    alt: "Jeep safari adventure",
-    category: "Activities",
-    caption: "Jeep Safari",
-    span: "normal",
-  },
-  {
-    id: 16,
-    src: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80",
-    alt: "Swimming pool",
-    category: "Activities",
-    caption: "Outdoor Pool",
-    span: "tall",
-  },
-  {
-    id: 17,
-    src: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&q=80",
-    alt: "Cultural dance performance",
-    category: "Activities",
-    caption: "Tharu Cultural Show",
-    span: "normal",
-  },
-  {
-    id: 18,
-    src: "https://images.unsplash.com/photo-1465056836041-7f43ac27dcb5?w=800&q=80",
-    alt: "Sunrise over Chitwan",
-    category: "Views",
-    caption: "Chitwan Sunrise",
-    span: "wide",
-  },
-  {
-    id: 19,
-    src: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&q=80",
-    alt: "Hotel garden view",
-    category: "Views",
-    caption: "Garden View",
-    span: "normal",
-  },
-  {
-    id: 20,
-    src: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80",
-    alt: "Hotel exterior at dusk",
-    category: "Views",
-    caption: "Hotel at Dusk",
-    span: "normal",
-  },
-  {
-    id: 21,
-    src: "https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=800&q=80",
-    alt: "Mountain mist view",
-    category: "Views",
-    caption: "Morning Mist",
-    span: "tall",
-  },
-];
+interface UploadFormValues {
+  files: FileList;
+}
 
 // ── Lightbox ───────────────────────────────────────────────────────────────
 function Lightbox({
@@ -219,14 +92,27 @@ function Lightbox({
   onClose,
   onPrev,
   onNext,
+  isPrivileged,
 }: {
   images: GalleryImage[];
   activeIndex: number;
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
+  isPrivileged: boolean;
 }) {
   const img = images[activeIndex];
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") onPrev();
+      if (e.key === "ArrowRight") onNext();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [onClose, onPrev, onNext]);
 
   return (
     <div
@@ -244,12 +130,6 @@ function Lightbox({
           color: "#fff",
           cursor: "pointer",
         }}
-        onMouseEnter={(e) =>
-          ((e.currentTarget as HTMLElement).style.background = "rgba(10,122,123,0.40)")
-        }
-        onMouseLeave={(e) =>
-          ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)")
-        }
       >
         <X size={18} />
       </button>
@@ -267,12 +147,6 @@ function Lightbox({
           color: "#fff",
           cursor: "pointer",
         }}
-        onMouseEnter={(e) =>
-          ((e.currentTarget as HTMLElement).style.background = "rgba(10,122,123,0.40)")
-        }
-        onMouseLeave={(e) =>
-          ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)")
-        }
       >
         <ChevronLeft size={20} />
       </button>
@@ -285,8 +159,8 @@ function Lightbox({
       >
         <div className="relative w-full" style={{ paddingBottom: "62%" }}>
           <Image
-            src={img.src}
-            alt={img.alt}
+            src={img.url}
+            alt={`Gallery image by ${img.uploader_name}`}
             fill
             className="object-cover"
             sizes="860px"
@@ -301,19 +175,25 @@ function Lightbox({
         <div className="flex items-center justify-between mt-4 px-1">
           <div>
             <p style={{ ...eyebrow, color: "rgba(255,255,255,0.40)" }}>
-              {img.category}
+              {new Date(img.created_at).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
             </p>
-            <p
-              style={{
-                fontFamily: "var(--font-exo2)",
-                fontWeight: 300,
-                fontSize: 20,
-                color: "rgb(221,211,188)",
-                letterSpacing: "0.04em",
-              }}
-            >
-              {img.caption}
-            </p>
+            {isPrivileged && (
+              <p
+                style={{
+                  fontFamily: "var(--font-exo2)",
+                  fontWeight: 300,
+                  fontSize: 18,
+                  color: "rgb(221,211,188)",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                {img.uploader_name}
+              </p>
+            )}
           </div>
           <span
             style={{
@@ -340,12 +220,6 @@ function Lightbox({
           color: "#fff",
           cursor: "pointer",
         }}
-        onMouseEnter={(e) =>
-          ((e.currentTarget as HTMLElement).style.background = "rgba(10,122,123,0.40)")
-        }
-        onMouseLeave={(e) =>
-          ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)")
-        }
       >
         <ChevronRight size={20} />
       </button>
@@ -358,38 +232,28 @@ function GalleryCard({
   image,
   index,
   onClick,
+  isPrivileged,
+  onDelete,
 }: {
   image: GalleryImage;
   index: number;
   onClick: () => void;
+  isPrivileged: boolean;
+  onDelete: (id: string) => void;
 }) {
-  const spanClass =
-    image.span === "wide"
-      ? "col-span-2"
-      : image.span === "tall"
-      ? "row-span-2"
-      : "";
-
-  const heightClass =
-    image.span === "tall"
-      ? "h-full min-h-[480px]"
-      : image.span === "wide"
-      ? "h-64 sm:h-72"
-      : "h-64";
-
   return (
     <div
-      className={`group relative overflow-hidden cursor-pointer ${spanClass}`}
+      className="group relative overflow-hidden cursor-pointer"
       data-aos="zoom-in"
       data-aos-duration="600"
       data-aos-delay={String((index % 6) * 80)}
       onClick={onClick}
       style={{ border: "1px solid rgba(10,122,123,0.12)" }}
     >
-      <div className={`relative w-full ${heightClass}`}>
+      <div className="relative w-full h-64">
         <Image
-          src={image.src}
-          alt={image.alt}
+          src={image.url}
+          alt={`Uploaded by ${image.uploader_name}`}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-110"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -421,6 +285,27 @@ function GalleryCard({
           </div>
         </div>
 
+        {/* Delete button — admin/moderator only */}
+        {isPrivileged && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(image._id);
+            }}
+            className="absolute top-3 right-3 z-10 flex items-center justify-center w-8 h-8 opacity-0 group-hover:opacity-100 transition-all duration-200"
+            style={{
+              background: "rgba(220,38,38,0.85)",
+              border: "1px solid rgba(255,255,255,0.25)",
+              backdropFilter: "blur(4px)",
+              color: "#fff",
+              cursor: "pointer",
+            }}
+            title="Delete image"
+          >
+            <Trash2 size={14} />
+          </button>
+        )}
+
         {/* Caption */}
         <div className="absolute bottom-0 left-0 px-4 pb-4">
           <p
@@ -431,45 +316,475 @@ function GalleryCard({
               marginBottom: 2,
             }}
           >
-            {image.category}
+            {new Date(image.created_at).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
           </p>
-          <p
-            style={{
-              fontFamily: "var(--font-exo2)",
-              fontWeight: 300,
-              fontSize: 15,
-              color: "#fff",
-              letterSpacing: "0.04em",
-            }}
-          >
-            {image.caption}
-          </p>
+          {isPrivileged && (
+            <p
+              style={{
+                fontFamily: "var(--font-exo2)",
+                fontWeight: 300,
+                fontSize: 14,
+                color: "#fff",
+                letterSpacing: "0.04em",
+              }}
+            >
+              {image.uploader_name}
+            </p>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
+// ── Upload Sheet ───────────────────────────────────────────────────────────
+function UploadSheet({
+  open,
+  onOpenChange,
+  onUploadSuccess,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onUploadSuccess: (images: GalleryImage[]) => void;
+}) {
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<UploadFormValues>();
+
+  const watchedFiles = watch("files");
+
+  // Generate previews when files change
+  useEffect(() => {
+    if (!watchedFiles || watchedFiles.length === 0) {
+      setPreviews([]);
+      return;
+    }
+    const urls: string[] = [];
+    Array.from(watchedFiles).forEach((file) => {
+      urls.push(URL.createObjectURL(file));
+    });
+    setPreviews(urls);
+    return () => urls.forEach(URL.revokeObjectURL);
+  }, [watchedFiles]);
+
+  const removePreview = (index: number) => {
+    // We can't remove individual files from FileList easily,
+    // so reset and let the user re-select
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const onSubmit = async (data: UploadFormValues) => {
+    if (!data.files || data.files.length === 0) return;
+
+    setIsUploading(true);
+    setProgress(10);
+
+    try {
+      const formData = new FormData();
+      const files = Array.from(data.files);
+      formData.append("filesCount", String(files.length));
+      files.forEach((file, i) => formData.append(`file_${i}`, file));
+
+      setProgress(40);
+
+      const res = await fetch("/api/gallery", {
+        method: "POST",
+        body: formData,
+      });
+
+      setProgress(80);
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Upload failed");
+      }
+
+      const result = await res.json();
+      setProgress(100);
+
+      toast.success(`${result.images.length} photo(s) uploaded successfully!`);
+      onUploadSuccess(result.images);
+      reset();
+      setPreviews([]);
+      onOpenChange(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Upload failed");
+    } finally {
+      setIsUploading(false);
+      setProgress(0);
+    }
+  };
+
+  const handleClose = () => {
+    if (!isUploading) {
+      reset();
+      setPreviews([]);
+      onOpenChange(false);
+    }
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={handleClose}>
+      <SheetContent
+        side="bottom"
+        className="rounded-t-2xl max-h-[85vh] overflow-y-auto"
+        style={{
+          fontFamily: "var(--font-exo2)",
+          background: "#f2ede1",
+          borderTop: "2px solid rgba(10,122,123,0.20)",
+        }}
+      >
+        <SheetHeader className="mb-6">
+          <div className="flex items-center gap-3 mb-1">
+            <div
+              className="flex items-center justify-center w-9 h-9"
+              style={{
+                background: "rgba(10,122,123,0.10)",
+                border: "1px solid rgba(10,122,123,0.25)",
+              }}
+            >
+              <CloudUpload size={18} style={{ color: "#0a7a7b" }} />
+            </div>
+            <SheetTitle
+              style={{
+                fontFamily: "var(--font-exo2)",
+                fontWeight: 600,
+                fontSize: 18,
+                color: "rgb(39,39,39)",
+                letterSpacing: "0.02em",
+              }}
+            >
+              Upload to Gallery
+            </SheetTitle>
+          </div>
+          <SheetDescription
+            style={{
+              fontFamily: "var(--font-exo2)",
+              fontSize: 13,
+              color: "rgba(39,39,39,0.55)",
+            }}
+          >
+            Select one or more photos to add to the Royal Galaxy gallery. Images
+            will be optimised automatically.
+          </SheetDescription>
+        </SheetHeader>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Drop zone */}
+          <div>
+            <Label
+              style={{
+                ...eyebrow,
+                color: "rgba(39,39,39,0.55)",
+                marginBottom: 10,
+                display: "block",
+              }}
+            >
+              Photos
+            </Label>
+
+            <div
+              className="relative flex flex-col items-center justify-center gap-3 cursor-pointer transition-all duration-200"
+              style={{
+                border: "2px dashed rgba(10,122,123,0.30)",
+                background: "rgba(10,122,123,0.03)",
+                padding: "2rem 1.5rem",
+                minHeight: 140,
+              }}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload size={28} style={{ color: "rgba(10,122,123,0.50)" }} />
+              <p
+                style={{
+                  fontFamily: "var(--font-exo2)",
+                  fontSize: 14,
+                  color: "rgba(39,39,39,0.60)",
+                  textAlign: "center",
+                }}
+              >
+                Click to select photos, or drag &amp; drop here
+              </p>
+              <p
+                style={{
+                  ...eyebrow,
+                  fontSize: 9,
+                  color: "rgba(39,39,39,0.35)",
+                }}
+              >
+                JPG, PNG, WEBP — up to 10 MB each
+              </p>
+
+              <input
+                {...register("files", {
+                  required: "Please select at least one photo",
+                  validate: (files) =>
+                    files.length > 0 || "Please select at least one photo",
+                })}
+                ref={(e) => {
+                  register("files").ref(e);
+                  (
+                    fileInputRef as React.MutableRefObject<HTMLInputElement | null>
+                  ).current = e;
+                }}
+                type="file"
+                accept="image/*"
+                multiple
+                className="absolute inset-0 opacity-0 cursor-pointer"
+                disabled={isUploading}
+              />
+            </div>
+
+            {errors.files && (
+              <p
+                className="mt-2"
+                style={{
+                  fontFamily: "var(--font-exo2)",
+                  fontSize: 12,
+                  color: "rgb(220,38,38)",
+                }}
+              >
+                {errors.files.message}
+              </p>
+            )}
+          </div>
+
+          {/* Preview grid */}
+          {previews.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <Label
+                  style={{
+                    ...eyebrow,
+                    color: "rgba(39,39,39,0.55)",
+                  }}
+                >
+                  Selected ({previews.length})
+                </Label>
+                <Badge
+                  variant="outline"
+                  style={{
+                    fontFamily: "var(--font-exo2)",
+                    fontSize: 10,
+                    borderColor: "rgba(10,122,123,0.30)",
+                    color: "#0a7a7b",
+                  }}
+                >
+                  {previews.length} photo{previews.length > 1 ? "s" : ""}
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                {previews.map((src, i) => (
+                  <div
+                    key={i}
+                    className="group relative overflow-hidden"
+                    style={{
+                      aspectRatio: "1",
+                      border: "1px solid rgba(10,122,123,0.15)",
+                    }}
+                  >
+                    <Image
+                      src={src}
+                      alt={`Preview ${i + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="120px"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removePreview(i)}
+                      className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      style={{ background: "rgba(220,38,38,0.65)" }}
+                    >
+                      <X size={16} color="#fff" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Upload progress */}
+          {isUploading && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p
+                  style={{
+                    fontFamily: "var(--font-exo2)",
+                    fontSize: 13,
+                    color: "#0a7a7b",
+                  }}
+                >
+                  Uploading to Cloudinary…
+                </p>
+                <span
+                  style={{
+                    fontFamily: "var(--font-exo2)",
+                    fontSize: 12,
+                    color: "rgba(39,39,39,0.50)",
+                  }}
+                >
+                  {progress}%
+                </span>
+              </div>
+              <Progress
+                value={progress}
+                className="h-1.5"
+                style={
+                  {
+                    background: "rgba(10,122,123,0.12)",
+                    "--progress-color": "#0a7a7b",
+                  } as React.CSSProperties
+                }
+              />
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex items-center gap-3 pt-2 pb-4">
+            <Button
+              type="submit"
+              disabled={isUploading || previews.length === 0}
+              className="flex-1 gap-2"
+              style={{
+                background: "#0a7a7b",
+                color: "#fff",
+                fontFamily: "var(--font-exo2)",
+                fontWeight: 500,
+                letterSpacing: "0.04em",
+                fontSize: 13,
+                border: "none",
+                cursor: isUploading ? "not-allowed" : "pointer",
+              }}
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 size={15} className="animate-spin" />
+                  Uploading…
+                </>
+              ) : (
+                <>
+                  <ImagePlus size={15} />
+                  Upload{" "}
+                  {previews.length > 0
+                    ? `${previews.length} Photo${previews.length > 1 ? "s" : ""}`
+                    : "Photos"}
+                </>
+              )}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={isUploading}
+              style={{
+                fontFamily: "var(--font-exo2)",
+                fontSize: 13,
+                borderColor: "rgba(39,39,39,0.20)",
+                color: "rgba(39,39,39,0.60)",
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 // ── Page ───────────────────────────────────────────────────────────────────
 const GalleryPage = () => {
+  const { user, isLoaded } = useUser();
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
+  // Role check
+  const role = user?.publicMetadata?.role as string | undefined;
+  const isPrivileged = role === "admin" || role === "moderator";
+
+  // Fetch images
+  const fetchImages = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch("/api/gallery");
+      if (!res.ok) throw new Error("Failed to fetch images");
+      const data = await res.json();
+      setImages(data.images ?? []);
+    } catch {
+      toast.error("Could not load gallery images.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchImages();
+  }, [fetchImages]);
+
+  // Lightbox
   const openLightbox = (index: number) => setLightboxIndex(index);
   const closeLightbox = () => setLightboxIndex(null);
   const prevImage = () =>
     setLightboxIndex((i) =>
-      i !== null ? (i - 1 + galleryImages.length) % galleryImages.length : null
+      i !== null ? (i - 1 + images.length) % images.length : null,
     );
   const nextImage = () =>
-    setLightboxIndex((i) =>
-      i !== null ? (i + 1) % galleryImages.length : null
-    );
+    setLightboxIndex((i) => (i !== null ? (i + 1) % images.length : null));
+
+  // Upload success
+  const handleUploadSuccess = (newImages: GalleryImage[]) => {
+    setImages((prev) => [...newImages, ...prev]);
+  };
+
+  // Delete
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch("/api/galleryDelete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: deleteTarget }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Delete failed");
+      }
+      setImages((prev) => prev.filter((img) => img._id !== deleteTarget));
+      toast.success("Image deleted successfully.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Delete failed");
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
 
   return (
     <>
       <AOSInit />
-      <main className={`${exo2.variable} bg-[#f2ede1] min-h-screen flex flex-col`}>
-
+      <main
+        className={`${exo2.variable} bg-[#f2ede1] min-h-screen flex flex-col`}
+      >
         {/* ── HERO ────────────────────────────────────────────────────── */}
         <section
           className="relative bg-[#0a7a7b] flex flex-col items-center justify-center text-center text-white px-4 sm:px-8 overflow-hidden"
@@ -571,14 +886,16 @@ const GalleryPage = () => {
               preserveAspectRatio="none"
               aria-hidden="true"
             >
-              <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" fill="#f2ede1" />
+              <path
+                d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z"
+                fill="#f2ede1"
+              />
             </svg>
           </div>
         </section>
 
         {/* ── GALLERY GRID ────────────────────────────────────────────── */}
-        <section className="max-w-6xl mx-auto w-full px-4 sm:px-8 pt-14 pb-20">
-
+        <section className="max-w-6xl mx-auto w-full px-4 sm:px-8 pt-14 pb-32">
           {/* Section label */}
           <div
             data-aos="fade-up"
@@ -606,36 +923,175 @@ const GalleryPage = () => {
             />
           </div>
 
-          {/* Grid */}
-          <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
-            style={{ gridAutoRows: "240px" }}
-          >
-            {galleryImages.map((image, index) => (
-              <GalleryCard
-                key={image.id}
-                image={image}
-                index={index}
-                onClick={() => openLightbox(index)}
+          {/* Loading state */}
+          {isLoading && (
+            <div className="flex flex-col items-center justify-center py-24 gap-4">
+              <Loader2
+                size={32}
+                className="animate-spin"
+                style={{ color: "rgba(10,122,123,0.50)" }}
               />
-            ))}
-          </div>
+              <p
+                style={{
+                  ...eyebrow,
+                  color: "rgba(39,39,39,0.35)",
+                  fontSize: 10,
+                }}
+              >
+                Loading gallery…
+              </p>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!isLoading && images.length === 0 && (
+            <div
+              className="flex flex-col items-center justify-center py-24 gap-4"
+              style={{
+                border: "1px dashed rgba(10,122,123,0.20)",
+                background: "rgba(10,122,123,0.02)",
+              }}
+            >
+              <ImagePlus size={36} style={{ color: "rgba(10,122,123,0.30)" }} />
+              <p
+                style={{
+                  fontFamily: "var(--font-exo2)",
+                  fontWeight: 300,
+                  fontSize: 18,
+                  color: "rgba(39,39,39,0.40)",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                No photos yet
+              </p>
+              {isPrivileged && (
+                <p
+                  style={{
+                    ...eyebrow,
+                    color: "rgba(10,122,123,0.40)",
+                    fontSize: 9,
+                  }}
+                >
+                  Use the upload button to add photos
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Grid */}
+          {!isLoading && images.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {images.map((image, index) => (
+                <GalleryCard
+                  key={image._id}
+                  image={image}
+                  index={index}
+                  onClick={() => openLightbox(index)}
+                  isPrivileged={isPrivileged}
+                  onDelete={(id) => setDeleteTarget(id)}
+                />
+              ))}
+            </div>
+          )}
         </section>
 
         {/* ── CTA ─────────────────────────────────────────────────────── */}
         <CTA />
       </main>
 
-      {/* ── LIGHTBOX ──────────────────────────────────────────────────── */}
-      {lightboxIndex !== null && (
+      {/* ── FAB: Upload Button (admin/moderator only) ────────────────── */}
+      {isLoaded && isPrivileged && (
+        <button
+          onClick={() => setSheetOpen(true)}
+          className="fixed bottom-8 right-8 z-40 flex items-center gap-2 px-5 py-3 shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95"
+          style={{
+            background: "#0a7a7b",
+            color: "#fff",
+            border: "1px solid rgba(255,255,255,0.15)",
+            fontFamily: "var(--font-exo2)",
+            fontWeight: 500,
+            letterSpacing: "0.06em",
+            fontSize: 12,
+            textTransform: "uppercase",
+            cursor: "pointer",
+            boxShadow: "0 8px 32px rgba(10,122,123,0.45)",
+          }}
+        >
+          <ImagePlus size={16} />
+          Add Photos
+        </button>
+      )}
+
+      {/* ── Upload Sheet ─────────────────────────────────────────────── */}
+      <UploadSheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        onUploadSuccess={handleUploadSuccess}
+      />
+
+      {/* ── Lightbox ─────────────────────────────────────────────────── */}
+      {lightboxIndex !== null && images.length > 0 && (
         <Lightbox
-          images={galleryImages}
+          images={images}
           activeIndex={lightboxIndex}
           onClose={closeLightbox}
           onPrev={prevImage}
           onNext={nextImage}
+          isPrivileged={isPrivileged}
         />
       )}
+
+      {/* ── Delete Confirm Dialog ─────────────────────────────────────── */}
+      <AlertDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <AlertDialogContent
+          style={{ fontFamily: "var(--font-exo2)", background: "#f2ede1" }}
+        >
+          <AlertDialogHeader>
+            <AlertDialogTitle
+              style={{ fontFamily: "var(--font-exo2)", fontWeight: 600 }}
+            >
+              Delete this photo?
+            </AlertDialogTitle>
+            <AlertDialogDescription
+              style={{
+                fontFamily: "var(--font-exo2)",
+                color: "rgba(39,39,39,0.55)",
+              }}
+            >
+              This will permanently remove the image from Cloudinary and the
+              gallery. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              style={{ fontFamily: "var(--font-exo2)", fontSize: 13 }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              style={{
+                background: "rgb(220,38,38)",
+                fontFamily: "var(--font-exo2)",
+                fontSize: 13,
+              }}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 size={13} className="animate-spin mr-2" />
+                  Deleting…
+                </>
+              ) : (
+                "Delete"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

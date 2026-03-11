@@ -8,7 +8,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from "./sheet";
+} from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -19,13 +19,18 @@ import {
   SignedIn,
   SignedOut,
   UserButton,
+  useUser,
 } from "@clerk/nextjs";
+import type { NavLink, UserRole } from "@/types/roles";
+
 export default function NavBar() {
   const pathname = usePathname();
-  // kept logic for potential future use but text below is forced dark
-  const isHomePage = pathname === "/";
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const { user, isLoaded } = useUser();
+  const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  // Get user role from Clerk metadata with type safety
+  const userRole = (user?.publicMetadata?.role as UserRole) || null;
 
   useEffect(() => {
     setIsOpen(false);
@@ -39,26 +44,61 @@ export default function NavBar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navLinks = [
+  // Type-safe navigation links
+  const navLinks: NavLink[] = [
     { name: "Home", href: "/" },
     { name: "The Hotel", href: "/the-hotel" },
     { name: "Blog", href: "/blog" },
     { name: "Gallery", href: "/gallery" },
     { name: "Feedback", href: "/feedback" },
-
-    // { name: "Amenities & Services ", href: "/services" },
-    // { name: "Local Attractions", href: "/local-attractions" },
     { name: "Contact", href: "/contact" },
+    { name: "Admin Dashboard", href: "/admin", requiredRole: "admin" },
+    {
+      name: "Moderator Dashboard",
+      href: "/moderator",
+      requiredRole: "moderator",
+    },
   ];
 
-  // Modified to be consistently dark/blackish as requested
+  // Filter links based on user role
+  const filteredLinks = navLinks.filter((link) => {
+    // If no role required, show to everyone
+    if (!link.requiredRole) return true;
+
+    // If user is not logged in, don't show role-protected links
+    if (!user) return false;
+
+    // Admin can see all links
+    if (userRole === "admin") return true;
+
+    // Show moderator links only to moderators
+    if (link.requiredRole === "moderator" && userRole === "moderator")
+      return true;
+
+    // Don't show admin links to non-admins
+    if (link.requiredRole === "admin") return false;
+
+    return false;
+  });
+
   const textColorClass = "text-gray-900 dark:text-gray-100";
   const hoverColorClass = "hover:text-black dark:hover:text-white";
+
+  // Don't render until user is loaded to prevent flash of incorrect content
+  if (!isLoaded) {
+    return (
+      <header className="sticky top-0 left-0 right-0 z-50 w-full bg-transparent py-5">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="text-2xl font-serif">Royal Galaxy</div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header
       className={cn(
-        "sticky top-0 left-0 right-0 z-50 w-full transition-all duration-300 ease-in-out border-b border-transparent ",
+        "sticky top-0 left-0 right-0 z-50 w-full transition-all duration-300 ease-in-out border-b border-transparent",
         isScrolled
           ? "bg-transparent backdrop-blur-md dark:bg-black/80 shadow-sm border-gray-200/20 py-3"
           : "bg-transparent py-5",
@@ -81,7 +121,7 @@ export default function NavBar() {
 
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-8 xl:flex">
-          {navLinks.map((link) => (
+          {filteredLinks.map((link) => (
             <Link
               key={link.name}
               href={link.href}
@@ -97,11 +137,11 @@ export default function NavBar() {
                   "absolute -bottom-1 left-0 h-px w-0 bg-current transition-all duration-300 ease-out group-hover:w-full",
                   "bg-black dark:bg-white",
                 )}
-              ></span>
+              />
             </Link>
           ))}
           <div className="flex gap-4 ml-4 items-center">
-            <SignedIn></SignedIn>
+            <SignedIn />
             <SignedOut>
               <SignUpButton mode="modal">
                 <Button
@@ -122,7 +162,7 @@ export default function NavBar() {
             >
               <Link href="/book">Book Now</Link>
             </Button>
-            <UserButton />
+            <UserButton afterSignOutUrl="/" />
           </div>
         </nav>
 
@@ -150,7 +190,7 @@ export default function NavBar() {
                 </SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-6 items-center w-full">
-                {navLinks.map((link) => (
+                {filteredLinks.map((link) => (
                   <Link
                     key={link.name}
                     href={link.href}
@@ -161,7 +201,7 @@ export default function NavBar() {
                 ))}
                 <div className="mt-6 flex flex-col gap-4 w-3/4 items-center">
                   <SignedIn>
-                    <UserButton />
+                    <UserButton afterSignOutUrl="/" />
                   </SignedIn>
                   <SignedOut>
                     <SignUpButton mode="modal">

@@ -79,7 +79,7 @@ export async function sendBookingReply({
         }
 
         const mailerSend = new MailerSend({
-            apiKey: process.env.MAILERSEND_API_KEY!,
+            apiKey: process.env.MAINERSEND_BOOKING_KEY!,
         });
 
         const sentFrom = new Sender(
