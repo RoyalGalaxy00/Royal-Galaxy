@@ -57,6 +57,7 @@ import {
   deleteBooking,
   type BookingInfo,
 } from "@/app/actions/bookingAdmin";
+import { EmailLimitAlert } from "@/components/ui/alertEmails";
 
 // ── Font ──────────────────────────────────────────────────────────────────
 const exo2 = Exo_2({
@@ -377,7 +378,7 @@ export default function BookingsAdminPage() {
           </div>
         </div>
       </div>
-
+      <EmailLimitAlert />
       {/* ── BOOKING GRID ───────────────────────────────────────────── */}
       <main className="max-w-6xl mx-auto px-6 py-10">
         {filtered.length === 0 ? (

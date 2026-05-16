@@ -51,6 +51,7 @@ import {
   deleteContactMessage,
   type ContactInfo,
 } from "@/app/actions/contactAdmins";
+import { EmailLimitAlert } from "@/components/ui/alertEmails";
 
 // ── Font ──────────────────────────────────────────────────────────────────
 const exo2 = Exo_2({
@@ -322,7 +323,9 @@ export default function ContactMessagesPage() {
           ))}
         </div>
       </div>
-
+      <div>
+        <EmailLimitAlert />
+      </div>
       {/* ── MESSAGE GRID ───────────────────────────────────────────────── */}
       <main className="max-w-6xl mx-auto px-6 py-10">
         {filtered.length === 0 ? (
