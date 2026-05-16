@@ -4,7 +4,25 @@ import { SearchUsers } from "./SearchUsers";
 import { clerkClient, User } from "@clerk/nextjs/server";
 import { AdminUserList } from "./AdminUserList";
 
-// ─── Reusable layout shell ────────────────────────────────────────────────────
+// ─── Helper: Fetch ALL users with pagination ────────────────────────────────
+async function fetchAllUsers(): Promise<User[]> {
+  const client = await clerkClient();
+  const allUsers: User[] = [];
+  let offset = 0;
+  const limit = 100; // Max allowed per request
+
+  while (true) {
+    const response = await client.users.getUserList({ limit, offset });
+    const users = response.data;
+    if (users.length === 0) break;
+    allUsers.push(...users);
+    if (users.length < limit) break; // Last page
+    offset += limit;
+  }
+  return allUsers;
+}
+
+// ─── Reusable layout shell ──────────────────────────────────────────────────
 function PageShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-10 px-4 sm:px-6 md:px-8">
@@ -13,7 +31,7 @@ function PageShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── Page header ──────────────────────────────────────────────────────────────
+// ─── Page header ────────────────────────────────────────────────────────────
 function PageHeader() {
   return (
     <div className="text-center mb-8">
@@ -27,7 +45,7 @@ function PageHeader() {
   );
 }
 
-// ─── Error card ───────────────────────────────────────────────────────────────
+// ─── Error card ─────────────────────────────────────────────────────────────
 function ErrorCard({
   title,
   message,
@@ -103,7 +121,7 @@ function ErrorCard({
   );
 }
 
-// ─── Empty state ──────────────────────────────────────────────────────────────
+// ─── Empty state ────────────────────────────────────────────────────────────
 function EmptyState() {
   return (
     <div className="flex justify-center">
@@ -134,43 +152,53 @@ function EmptyState() {
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// ─── Page ───────────────────────────────────────────────────────────────────
 export default async function AdminDashboard(params: {
   searchParams: Promise<{ search?: string }>;
 }) {
+  // Authorization: only admin can view this page
   if (!checkRole("admin")) redirect("/");
 
   const query = (await params.searchParams).search;
 
-  let usersData: User[] = [];
+  let usersToDisplay: User[] = [];
 
-  if (query) {
-    try {
+  try {
+    if (query) {
+      // When a search query is provided: fetch matching users (no role filter)
       const client = await clerkClient();
       const result = await client.users.getUserList({ query });
-      usersData = result.data;
-    } catch (err: any) {
-      return (
-        <PageShell>
-          <PageHeader />
-          <ErrorCard
-            title="Clerk API Error"
-            message="Could not fetch users. This is usually a configuration or network issue."
-            accentClass="bg-gradient-to-r from-red-500 to-red-600"
-            details={err?.message}
-            showClerkLink
-          />
-          <div className="mt-6 flex justify-center">
-            <div className="w-full max-w-md">
-              <SearchUsers />
-            </div>
-          </div>
-        </PageShell>
-      );
+      usersToDisplay = result.data;
+    } else {
+      // No search query: fetch ALL users and filter by admin/moderator role
+      const allUsers = await fetchAllUsers();
+      usersToDisplay = allUsers.filter((user) => {
+        const role = user.publicMetadata?.role as string | undefined;
+        return role === "admin" || role === "moderator";
+      });
     }
+  } catch (err: any) {
+    return (
+      <PageShell>
+        <PageHeader />
+        <ErrorCard
+          title="Clerk API Error"
+          message="Could not fetch users. This is usually a configuration or network issue."
+          accentClass="bg-gradient-to-r from-red-500 to-red-600"
+          details={err?.message}
+          showClerkLink
+        />
+        <div className="mt-6 flex justify-center">
+          <div className="w-full max-w-md">
+            <SearchUsers />
+          </div>
+        </div>
+      </PageShell>
+    );
   }
 
-  const users = usersData.map((user) => ({
+  // Transform users to the shape expected by AdminUserList
+  const users = usersToDisplay.map((user) => ({
     id: user.id,
     firstName: user.firstName,
     lastName: user.lastName,
@@ -199,7 +227,34 @@ export default async function AdminDashboard(params: {
         <AdminUserList users={users} />
       ) : query ? (
         <EmptyState />
-      ) : null}
+      ) : (
+        // If no search query and no admins/moderators found, show a custom message
+        <div className="flex justify-center">
+          <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 max-w-sm w-full">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+              <svg
+                className="w-8 h-8 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+              No admins or moderators
+            </h3>
+            <p className="text-sm text-gray-400 dark:text-gray-500 px-6">
+              There are currently no users with admin or moderator roles.
+            </p>
+          </div>
+        </div>
+      )}
     </PageShell>
   );
 }

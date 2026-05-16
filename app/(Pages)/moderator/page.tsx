@@ -15,24 +15,22 @@ import { redirect } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 // Server component for role checking
 export async function ModeratorPage() {
-  const { user,isSignedIn,isLoaded } = useUser();
-   const userRole = user?.publicMetadata?.role as string | undefined;
+  const { user, isSignedIn, isLoaded } = useUser();
+  const userRole = user?.publicMetadata?.role as string | undefined;
 
-   if(!isLoaded){
-    return <div>Loading...</div>
-   }
-useEffect(() => {
-if(!isSignedIn){
-    redirect("/not-found");
-    console.error("Please sign in first.")
-  
-}
-}, [isLoaded]);
-
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
+  useEffect(() => {
+    if (!isSignedIn) {
+      redirect("/not-found");
+      console.error("Please sign in first.");
+    }
+  }, [isLoaded]);
 
   if (!userRole) {
     redirect("/not-found");
-    console.error("You are not authorized to access this page.")
+    console.error("You are not authorized to access this page.");
     return null;
   }
 
@@ -58,13 +56,21 @@ const Moderator = () => {
       icon: <Users className="h-5 w-5" />,
       color: "text-red-500",
     },
-       {
+    {
       id: 3,
       category: "Booker List",
       content: "Customers who want to book room.",
       link: "/moderator/booker-list",
       icon: <Users className="h-5 w-5" />,
       color: "text-blue-500",
+    },
+    {
+      id: 4,
+      category: "Social Media Contacts",
+      content: "Customers who want to connect on social media.",
+      link: "/moderator/social-media-contacts",
+      icon: <Users className="h-5 w-5" />,
+      color: "text-yellow-500",
     },
   ];
 

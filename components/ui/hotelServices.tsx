@@ -15,6 +15,7 @@ import {
   Map,
   Users,
   Waves,
+  Ship,
 } from "lucide-react";
 import { Button } from "./button";
 
@@ -46,9 +47,9 @@ const amenities = [
     description: "In-room dining available during your stay",
   },
   {
-    icon: Shirt,
-    title: "Laundry Service",
-    description: "Quick and efficient laundry facilities",
+    icon: Ship,
+    title: "Boating",
+    description: "Exciting boating adventures on the lake",
   },
   {
     icon: Thermometer,
@@ -63,8 +64,9 @@ const amenities = [
   },
   {
     icon: Waves,
-    title: "Swimming Pool",
-    description: "Relax in our crystal clear outdoor swimming pool",
+    title: "Jungle Safari",
+    description:
+      "Explore the lush greenery and wildlife in our jungle safari experience",
   },
 ];
 
@@ -102,7 +104,7 @@ const HotelServices = () => {
           ))}
         </div>
 
-        <Link href="/contactus" className="flex justify-center mt-16">
+        <Link href="/book" className="flex justify-center mt-16">
           <Button className="text-white bg-[#0a7a7b] border-0 py-2 px-8 focus:outline-none hover:bg-[#086061] rounded text-lg">
             Book Your Stay
           </Button>

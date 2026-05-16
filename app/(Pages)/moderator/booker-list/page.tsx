@@ -101,8 +101,7 @@ function formatDate(dateStr: string) {
 }
 
 function nightsBetween(checkIn: string, checkOut: string) {
-  const diff =
-    new Date(checkOut).getTime() - new Date(checkIn).getTime();
+  const diff = new Date(checkOut).getTime() - new Date(checkIn).getTime();
   const nights = Math.round(diff / (1000 * 60 * 60 * 24));
   return nights > 0 ? nights : null;
 }
@@ -138,9 +137,11 @@ export default function BookingsAdminPage() {
   // ── Open reply sheet ──────────────────────────────────────────────
   const openReply = (booking: BookingInfo) => {
     setActiveBooking(booking);
-    setReplySubject(`Your Reservation at Royal Galaxy Hotel & Lodge — ${booking.room}`);
+    setReplySubject(
+      `Your Reservation at Royal Galaxy Hotel & Lodge — ${booking.room}`,
+    );
     setReplyBody(
-      `Dear ${booking.firstName},\n\nThank you for choosing Royal Galaxy Hotel & Lodge. We are pleased to confirm your reservation for the ${booking.room}.\n\nCheck-in: ${formatDate(booking.checkInDate)} at ${booking.checkInTime}\nCheck-out: ${formatDate(booking.checkOutDate)} at ${booking.checkOutTime}\nGuests: ${booking.numberOfGuests}\n\nShould you require any assistance before your arrival, please don't hesitate to get in touch.\n\nWarm regards,\nRoyal Galaxy Hotel & Lodge`
+      `Dear ${booking.firstName},\n\nThank you for choosing Royal Galaxy Hotel & Lodge. We are pleased to confirm your reservation for the ${booking.room}.\n\nCheck-in: ${formatDate(booking.checkInDate)} at ${booking.checkInTime}\nCheck-out: ${formatDate(booking.checkOutDate)} at ${booking.checkOutTime}\nGuests: ${booking.numberOfGuests}\n\nShould you require any assistance before your arrival, please don't hesitate to get in touch.\n\nWarm regards,\nRoyal Galaxy Hotel & Lodge`,
     );
     setReplyOpen(true);
   };
@@ -166,8 +167,8 @@ export default function BookingsAdminPage() {
         toast.success(`Reply sent to ${activeBooking.email}!`);
         setBookings((prev) =>
           prev.map((b) =>
-            b._id === activeBooking._id ? { ...b, replied: true } : b
-          )
+            b._id === activeBooking._id ? { ...b, replied: true } : b,
+          ),
         );
         setReplyOpen(false);
       } else {
@@ -483,16 +484,24 @@ export default function BookingsAdminPage() {
                   </p>
                   <div className="flex flex-col gap-1.5">
                     {[
-                      { icon: <BedDouble size={11} />, label: activeBooking.room },
+                      {
+                        icon: <BedDouble size={11} />,
+                        label: activeBooking.room,
+                      },
                       {
                         icon: <Calendar size={11} />,
                         label: `${formatDate(activeBooking.checkInDate)} → ${formatDate(activeBooking.checkOutDate)}`,
                       },
-                      { icon: <Users size={11} />, label: `${activeBooking.numberOfGuests} guest(s)` },
+                      {
+                        icon: <Users size={11} />,
+                        label: `${activeBooking.numberOfGuests} guest(s)`,
+                      },
                     ].map(({ icon, label }, i) => (
                       <div key={i} className="flex items-center gap-2">
                         <span style={{ color: C.gold }}>{icon}</span>
-                        <span style={{ ...EXO, fontSize: 13, color: C.navyMid }}>
+                        <span
+                          style={{ ...EXO, fontSize: 13, color: C.navyMid }}
+                        >
                           {label}
                         </span>
                       </div>
@@ -761,7 +770,12 @@ function BookingCard({
                 {label}
               </span>
               <span
-                style={{ ...EXO, fontSize: 13, fontWeight: 600, color: "#0e1a2e" }}
+                style={{
+                  ...EXO,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "#0e1a2e",
+                }}
               >
                 {formatDate(date)}
               </span>

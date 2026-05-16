@@ -760,7 +760,7 @@ const GalleryPage = () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
     try {
-      const res = await fetch("/api/galleryDelete", {
+      const res = await fetch(`/api/gallery/${deleteTarget}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: deleteTarget }),
@@ -772,7 +772,7 @@ const GalleryPage = () => {
       setImages((prev) => prev.filter((img) => img._id !== deleteTarget));
       toast.success("Image deleted successfully.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Delete failed");
+      toast.error("Delete failed");
     } finally {
       setIsDeleting(false);
       setDeleteTarget(null);
